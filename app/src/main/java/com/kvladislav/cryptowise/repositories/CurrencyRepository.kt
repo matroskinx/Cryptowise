@@ -1,22 +1,27 @@
 package com.kvladislav.cryptowise.repositories
 
 import com.google.gson.GsonBuilder
+import com.kvladislav.cryptowise.models.cmc_listings.CMCListingsResponse
 import com.kvladislav.cryptowise.models.cmc_map.CMCIDMapResponse
-import com.kvladislav.cryptowise.services.OverviewService
+import com.kvladislav.cryptowise.services.CurrencyService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class OverviewRepository {
+class CurrencyRepository {
 
-    private val webservice: OverviewService by lazy {
+    private val webservice: CurrencyService by lazy {
         Retrofit.Builder()
             .baseUrl(CMC_MAP_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
-            .build().create(OverviewService::class.java)
+            .build().create(CurrencyService::class.java)
     }
 
     suspend fun getIDMap(): CMCIDMapResponse {
         return webservice.getIDMap(CMC_API_KEY)
+    }
+
+    suspend fun getListings() : CMCListingsResponse {
+        return webservice.getLatestListings(CMC_API_KEY)
     }
 
     companion object {
