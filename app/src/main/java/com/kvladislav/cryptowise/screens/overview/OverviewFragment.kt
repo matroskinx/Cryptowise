@@ -29,6 +29,9 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     override fun setupObservers() {
         viewModel().currencyListings.observe(viewLifecycleOwner) { fillAdapterData(it) }
+        viewModel().favouriteList.observe(viewLifecycleOwner) {
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private fun fillAdapterData(listings: CMCListingsResponse) {
@@ -60,6 +63,12 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
                         .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${this.item.id}.png")
                         .into(logo)
                     price_tv.text = this.item.quote?.USD?.price?.format(2)
+
+                    if (viewModel().favouriteList.value?.contains(this.item.id) == true) {
+                        favourite_button.setImageResource(R.drawable.ic_favorite)
+                    } else {
+                        favourite_button.setImageResource(R.drawable.ic_favorite_border)
+                    }
 
                     val percentChange: Double? = this.item.quote?.USD?.percentChange24h?.also {
                         when {
