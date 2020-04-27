@@ -9,8 +9,10 @@ import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.extensions.format
 import com.kvladislav.cryptowise.extensions.observe
+import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.cmc_listings.CMCListingsResponse
 import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
+import com.kvladislav.cryptowise.screens.transaction.TransactionListFragment
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_overview.*
 import kotlinx.android.synthetic.main.currency_rv_item.*
@@ -39,6 +41,15 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         Timber.d("Got listings")
         adapter.items = listings.data?.sortedWith(compareBy { it.cmcRank })
         adapter.notifyDataSetChanged()
+    }
+
+    override fun setupListeners() {
+        transactions_btn.setOnClickListener {
+            parentFragmentManager.transaction {
+                this.addToBackStack(TransactionListFragment::class.java.canonicalName)
+                this.replace(R.id.fragment_container, TransactionListFragment())
+            }
+        }
     }
 
     private fun setLoadedView() {
