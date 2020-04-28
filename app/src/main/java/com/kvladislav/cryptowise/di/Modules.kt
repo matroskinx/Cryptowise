@@ -3,6 +3,7 @@ package com.kvladislav.cryptowise.di
 import com.kvladislav.cryptowise.Preferences
 import com.kvladislav.cryptowise.database.TransactionDatabase
 import com.kvladislav.cryptowise.models.CMCDataMinified
+import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.repositories.TransactionRepository
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsViewModel
@@ -20,6 +21,7 @@ val appModules = module {
     viewModel { (data: CMCDataMinified) -> BuySellPagerViewModel(get(), data) }
     viewModel { (data: CMCDataMinified) -> CurrencyDetailsViewModel(get(), data) }
     single { CurrencyRepository() }
+    single { CoinCapRepository() }
     single { Preferences(get()) }
     single { TransactionDatabase.getDatabase(androidApplication()) }
     factory { get<TransactionDatabase>().transactionDao() }

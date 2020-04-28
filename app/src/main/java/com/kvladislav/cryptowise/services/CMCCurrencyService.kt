@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
 
-interface CurrencyService {
+interface CMCCurrencyService {
     @GET("cryptocurrency/map")
     suspend fun getIDMap(@Header("X-CMC_PRO_API_KEY") apiKey: String): CMCIDMapResponse
 

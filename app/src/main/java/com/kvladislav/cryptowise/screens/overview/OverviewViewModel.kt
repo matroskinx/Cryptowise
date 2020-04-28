@@ -10,6 +10,7 @@ import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CurrencySetWrapper
 import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
+import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsFragment
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ import timber.log.Timber
 
 class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinComponent {
     private val currencyRepository: CurrencyRepository by inject()
+    private val coinCapRepository: CoinCapRepository by inject()
     private val preferences: Preferences by inject()
     val favouriteList: MutableLiveData<Set<Int>> = MutableLiveData()
 
@@ -27,6 +29,41 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
     }
 
     val currencyListings = liveData(Dispatchers.IO) {
+        val listings = currencyRepository.getListings()
+        val assets = coinCapRepository.getAssets()
+        Timber.d("BB ${listings.data?.count()} vs ${assets.data?.count()}")
+
+        val notFound = mutableListOf<String?>()
+
+        val found = mutableListOf<String?>()
+
+        if (assets.data == null || listings.data == null) return@liveData
+
+        var wasFound = false
+
+        for (i in assets.data) {
+            val searchP = i.symbol
+
+            for (j in listings.data) {
+                if (j.symbol.equals(searchP)) {
+                    wasFound = true
+                    found.add(searchP)
+                    break
+                }
+            }
+
+            if (!wasFound) {
+                notFound.add(searchP)
+            }
+            wasFound = false
+
+        }
+
+        Timber.d("NF: ${notFound.count()}")
+        Timber.d("FF: ${found.count()}")
+        Timber.d("FF: ${notFound}")
+
+
         emit(currencyRepository.getListings())
     }
 
