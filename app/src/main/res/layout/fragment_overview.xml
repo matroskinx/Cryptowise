@@ -27,10 +27,12 @@
                 android:layout_weight="1"
                 android:visibility="invisible" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/transactions_btn"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
                 android:text="@string/transactions" />
 
         </LinearLayout>

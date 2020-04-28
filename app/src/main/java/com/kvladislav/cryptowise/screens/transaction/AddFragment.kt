@@ -1,28 +1,33 @@
 package com.kvladislav.cryptowise.screens.transaction
 
+import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.kvladislav.cryptowise.R
-import com.kvladislav.cryptowise.base.BaseFragment
+import com.kvladislav.cryptowise.models.CMCDataMinified
 import kotlinx.android.synthetic.main.fragment_add.*
-import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
 import timber.log.Timber
 import java.lang.IllegalStateException
 
 
-class AddFragment : BaseFragment(R.layout.fragment_add) {
-    override fun viewModel(): AddViewModel = getSharedViewModel()
+class AddFragment : Fragment(R.layout.fragment_add) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupView()
+        setupListeners()
+    }
 
-    override fun setupView() {
+    private fun setupView() {
         transaction_viewpager.isUserInputEnabled = false
         activity?.let {
             transaction_viewpager.adapter = TransactionAdapter(it)
         }
     }
 
-    override fun setupListeners() {
+    private fun setupListeners() {
         transaction_tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 Timber.d("Tab reselected: ${tab?.position}")
@@ -46,7 +51,9 @@ class AddFragment : BaseFragment(R.layout.fragment_add) {
 
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                BUY_SELL_PAGE -> BuySellPagerFragment()
+                BUY_SELL_PAGE -> BuySellPagerFragment().apply {
+                    this.arguments = Bundle(this@AddFragment.arguments)
+                }
                 TRANSFER_PAGE -> TransferPagerFragment()
                 else -> throw IllegalStateException("Incorrect page $position")
             }
@@ -57,6 +64,18 @@ class AddFragment : BaseFragment(R.layout.fragment_add) {
         const val NUM_PAGES = 2
         const val BUY_SELL_PAGE = 0
         const val TRANSFER_PAGE = 1
+
+        const val CMC_ID_EXTRA = "CMC_ID_EXTRA"
+        const val CMC_SYMBOL_EXTRA = "CMC_SYMBOL_EXTRA"
+
+        fun build(cmcData: CMCDataMinified): AddFragment {
+            return AddFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(CMC_ID_EXTRA, cmcData.id)
+                    putString(CMC_SYMBOL_EXTRA, cmcData.symbol)
+                }
+            }
+        }
     }
 
 }

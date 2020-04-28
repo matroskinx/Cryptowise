@@ -6,9 +6,9 @@ import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.extensions.observe
-import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.transactions.BuySellTransaction
 import kotlinx.android.synthetic.main.fragment_transaction_list.*
+import kotlinx.android.synthetic.main.transaction_rv_item.*
 import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
 import timber.log.Timber
 
@@ -19,15 +19,6 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
 
     override fun setupView() {
         setupAdapter()
-    }
-
-    override fun setupListeners() {
-        add_button.setOnClickListener {
-            parentFragmentManager.transaction {
-                addToBackStack(AddFragment::class.java.canonicalName)
-                replace(R.id.fragment_container, AddFragment())
-            }
-        }
     }
 
     override fun setupObservers() {
@@ -42,7 +33,7 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         val transactionAdapter =
             adapterDelegateLayoutContainer<BuySellTransaction, BuySellTransaction>(R.layout.transaction_rv_item) {
                 bind {
-                    // TODO() binding
+                    mock_tv.setText("${this.item}")
                 }
             }
 

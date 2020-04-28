@@ -1,22 +1,35 @@
 package com.kvladislav.cryptowise.screens.transaction
 
 import android.app.DatePickerDialog
+import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.enums.TransactionType
+import com.kvladislav.cryptowise.models.CMCDataMinified
 import kotlinx.android.synthetic.main.fragment_buy_sell_pager.*
-import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.core.parameter.parametersOf
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class BuySellPagerFragment : BaseFragment(R.layout.fragment_buy_sell_pager) {
-    override fun viewModel(): AddViewModel = getSharedViewModel()
+    override fun viewModel(): BuySellPagerViewModel =
+        getViewModel { parametersOf(parseArguments(arguments)) }
 
     private val calendar = Calendar.getInstance()
+
+    private fun parseArguments(arguments: Bundle?): CMCDataMinified {
+        return arguments?.run {
+            CMCDataMinified(
+                getInt(AddFragment.CMC_ID_EXTRA),
+                getString(AddFragment.CMC_SYMBOL_EXTRA, "")
+            )
+        } ?: throw IllegalArgumentException("Bundle was null during initialization")
+    }
 
     override fun setupView() {
         when (viewModel().currentType) {

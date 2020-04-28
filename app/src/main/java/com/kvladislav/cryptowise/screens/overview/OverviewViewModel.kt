@@ -5,10 +5,13 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.kvladislav.cryptowise.Preferences
+import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
+import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CurrencySetWrapper
 import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
+import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsFragment
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -29,6 +32,12 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
 
     fun onCurrencySelected(item: ListingItem) {
         Timber.d("Selected item: ${item.id} ${item.symbol}")
+        withActivity {
+            it.supportFragmentManager.transaction {
+                addToBackStack(CurrencyDetailsFragment::class.java.canonicalName)
+                replace(R.id.fragment_container, CurrencyDetailsFragment.build(item))
+            }
+        }
     }
 
     fun onFavouriteCurrencyTap(item: ListingItem) {

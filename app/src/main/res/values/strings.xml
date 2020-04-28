@@ -13,4 +13,5 @@
     <string name="buy_sell">Buy/Sell</string>
     <string name="operation">Operation</string>
     <string name="add">Add</string>
+    <string name="add_transaction">Add transaction</string>
 </resources>
