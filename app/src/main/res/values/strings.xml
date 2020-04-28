@@ -14,4 +14,5 @@
     <string name="operation">Operation</string>
     <string name="add">Add</string>
     <string name="add_transaction">Add transaction</string>
+    <string name="transaction_success">Transaction successfully saved</string>
 </resources>

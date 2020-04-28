@@ -1,7 +1,9 @@
 package com.kvladislav.cryptowise.screens.transaction
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.viewModelScope
+import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.enums.TransactionType
 import com.kvladislav.cryptowise.models.CMCDataMinified
@@ -32,6 +34,14 @@ class BuySellPagerViewModel(private val context: Context, val cmcData: CMCDataMi
         )
         viewModelScope.launch(Dispatchers.IO) {
             transactionRepository.addTransaction(transaction)
+            withActivity {
+                Toast.makeText(
+                    it,
+                    context.getString(R.string.transaction_success),
+                    Toast.LENGTH_LONG
+                ).show()
+                it.supportFragmentManager.popBackStack()
+            }
         }
     }
 

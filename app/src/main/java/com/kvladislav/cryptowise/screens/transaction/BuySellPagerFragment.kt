@@ -8,6 +8,7 @@ import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.enums.TransactionType
 import com.kvladislav.cryptowise.models.CMCDataMinified
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_buy_sell_pager.*
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -37,8 +38,16 @@ class BuySellPagerFragment : BaseFragment(R.layout.fragment_buy_sell_pager) {
             TransactionType.SELL -> setupSellView()
             else -> throw IllegalStateException("Unable to launch buy sell fragment for ${viewModel().currentType}")
         }
-
+        setupBasicView()
         setupDropdown()
+    }
+
+    private fun setupBasicView() {
+        val basicData = parseArguments(arguments)
+        Picasso.get()
+            .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${basicData.id}.png")
+            .into(crypto_iv)
+        crypto_tv.text = basicData.symbol
     }
 
     private fun setupDropdown() {
