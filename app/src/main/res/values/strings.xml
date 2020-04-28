@@ -4,4 +4,13 @@
     <string name="buy">Buy</string>
     <string name="sell">Sell</string>
     <string name="transfer">Transfer</string>
+    <string name="coming_soon">Coming soon..</string>
+    <string name="price_per_coin">Price per coin</string>
+    <string name="quantity">Quantity</string>
+    <string name="fee">Fee</string>
+    <string name="date">Date</string>
+    <string name="action">Action</string>
+    <string name="buy_sell">Buy/Sell</string>
+    <string name="operation">Operation</string>
+    <string name="add">Add</string>
 </resources>

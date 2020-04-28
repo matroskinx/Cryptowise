@@ -9,6 +9,7 @@ import com.kvladislav.cryptowise.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_add.*
 import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
 import timber.log.Timber
+import java.lang.IllegalStateException
 
 
 class AddFragment : BaseFragment(R.layout.fragment_add) {
@@ -22,8 +23,6 @@ class AddFragment : BaseFragment(R.layout.fragment_add) {
     }
 
     override fun setupListeners() {
-        add_t_button.setOnClickListener { viewModel().createAndAddTransaction() }
-
         transaction_tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 Timber.d("Tab reselected: ${tab?.position}")
@@ -41,15 +40,23 @@ class AddFragment : BaseFragment(R.layout.fragment_add) {
             }
         })
     }
-}
 
-class TransactionAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
-    override fun getItemCount(): Int = 3
+    inner class TransactionAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
+        override fun getItemCount(): Int = NUM_PAGES
 
-    override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            else -> TODO("fill in fragments")
+        override fun createFragment(position: Int): Fragment {
+            return when (position) {
+                BUY_SELL_PAGE -> BuySellPagerFragment()
+                TRANSFER_PAGE -> TransferPagerFragment()
+                else -> throw IllegalStateException("Incorrect page $position")
+            }
         }
+    }
+
+    companion object {
+        const val NUM_PAGES = 2
+        const val BUY_SELL_PAGE = 0
+        const val TRANSFER_PAGE = 1
     }
 
 }
