@@ -9,9 +9,8 @@ import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.CurrencySetWrapper
-import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
 import com.kvladislav.cryptowise.models.cmc_map.CMCMapItem
-import com.kvladislav.cryptowise.models.coin_cap.CoinCapAssetItem
+import com.kvladislav.cryptowise.models.coin_cap.assets.CoinCapAssetItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsFragment

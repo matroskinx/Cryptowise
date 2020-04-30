@@ -1,16 +1,25 @@
 package com.kvladislav.cryptowise.screens.currency
 
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
+import com.github.mikephil.charting.charts.CandleStickChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.CandleData
+import com.github.mikephil.charting.data.CandleDataSet
+import com.github.mikephil.charting.data.CandleEntry
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
+import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CombinedAssetModel
-import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
+import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import kotlinx.android.synthetic.main.fragment_currency_details.*
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.core.parameter.parametersOf
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
+import timber.log.Timber
+
 
 class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details) {
     override fun viewModel(): CurrencyDetailsViewModel =
@@ -27,6 +36,80 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         add_tr_button.setOnClickListener { viewModel().onAddTransactionTap() }
     }
 
+    override fun setupObservers() {
+        viewModel().candlesData.observe(viewLifecycleOwner) {
+            Timber.d("candles response: $it")
+            it.data?.let { candles ->
+                fillChartWithData(candles)
+            }
+        }
+    }
+
+    override fun setupView() {
+        setupChart()
+    }
+
+    private fun fillChartWithData(items: List<CandleItem?>) {
+        val start = items[0]?.period!! / 1000000
+        val candles = mutableListOf<CandleEntry>()
+        var counter = 1
+        for (candle in items) {
+            candles.add(
+                CandleEntry(
+                    counter.toFloat(),
+//                    candle?.period?.toFloat()?.div(1000000)?.minus(start) ?: 0f,
+                    candle?.high?.toFloat() ?: 0f,
+                    candle?.low?.toFloat() ?: 0f,
+                    candle?.open?.toFloat() ?: 0f,
+                    candle?.close?.toFloat() ?: 0f
+                )
+            )
+            counter++
+        }
+
+        val dataSet = CandleDataSet(candles, "btc")
+
+        dataSet.setDrawIcons(false)
+        dataSet.setDrawValues(false)
+        dataSet.axisDependency = YAxis.AxisDependency.LEFT
+        dataSet.shadowColor = Color.DKGRAY
+        dataSet.shadowWidth = 0.7f
+        dataSet.decreasingColor = Color.RED
+        dataSet.decreasingPaintStyle = Paint.Style.FILL
+        dataSet.increasingColor = Color.rgb(122, 242, 84)
+        dataSet.increasingPaintStyle = Paint.Style.FILL_AND_STROKE
+        dataSet.neutralColor = Color.BLUE
+
+        val data = CandleData(dataSet)
+
+        ohlcv_chart.data = data
+        ohlcv_chart.invalidate()
+    }
+
+    private fun setupChart() {
+        val candleStickChart: CandleStickChart = ohlcv_chart
+        candleStickChart.setBackgroundColor(Color.WHITE)
+        candleStickChart.description.isEnabled = false
+        candleStickChart.setPinchZoom(false)
+        candleStickChart.setDrawGridBackground(false)
+        val xAxis = candleStickChart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setLabelCount(2, true)
+        xAxis.setDrawGridLines(false)
+        xAxis.isEnabled = false
+
+
+        val leftAxis = candleStickChart.axisLeft
+        leftAxis.setLabelCount(7, false)
+        leftAxis.setDrawGridLines(false)
+        leftAxis.setDrawAxisLine(false)
+
+        val rightAxis = candleStickChart.axisRight
+        rightAxis.isEnabled = false
+
+        candleStickChart.legend.isEnabled = false
+    }
+
     companion object {
         const val CMC_ID_EXTRA = "CMC_ID_EXTRA"
         const val CMC_SYMBOL_EXTRA = "CMC_SYMBOL_EXTRA"
@@ -34,7 +117,10 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         fun build(item: CombinedAssetModel): CurrencyDetailsFragment {
             return CurrencyDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(CMC_ID_EXTRA, item.cmcMapItem.id ?: throw IllegalStateException("Id is empty"))
+                    putInt(
+                        CMC_ID_EXTRA,
+                        item.cmcMapItem.id ?: throw IllegalStateException("Id is empty")
+                    )
                     putString(CMC_SYMBOL_EXTRA, item.cmcMapItem.symbol ?: "")
                 }
             }

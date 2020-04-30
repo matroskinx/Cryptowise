@@ -3,18 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:orientation="vertical">
 
-    <ProgressBar
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_gravity="center_horizontal" />
-
+    <com.github.mikephil.charting.charts.CandleStickChart
+        android:id="@+id/ohlcv_chart"
+        android:layout_width="match_parent"
+        android:layout_height="400dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:orientation="horizontal">
 
         <ImageView
@@ -33,5 +33,7 @@
         android:id="@+id/add_tr_button"
         android:layout_width="match_parent"
         android:layout_height="56dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:text="@string/add_transaction" />
 </LinearLayout>
