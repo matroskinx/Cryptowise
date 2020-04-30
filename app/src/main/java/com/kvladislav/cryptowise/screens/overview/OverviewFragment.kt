@@ -7,11 +7,10 @@ import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
-import com.kvladislav.cryptowise.extensions.format
+import com.kvladislav.cryptowise.extensions.formatWithPercent
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.extensions.transaction
-import com.kvladislav.cryptowise.models.cmc_listings.CMCListingsResponse
-import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
+import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.screens.transaction.TransactionListFragment
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_overview.*
@@ -21,7 +20,7 @@ import timber.log.Timber
 
 class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
-    lateinit var adapter: ListDelegationAdapter<List<ListingItem>>
+    lateinit var adapter: ListDelegationAdapter<List<CombinedAssetModel>>
 
     override fun viewModel(): OverviewViewModel = getSharedViewModel()
 
@@ -36,10 +35,10 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         }
     }
 
-    private fun fillAdapterData(listings: CMCListingsResponse) {
+    private fun fillAdapterData(listings: List<CombinedAssetModel>) {
         setLoadedView()
         Timber.d("Got listings")
-        adapter.items = listings.data?.sortedWith(compareBy { it.cmcRank })
+        adapter.items = listings
         adapter.notifyDataSetChanged()
     }
 
@@ -59,7 +58,7 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     private fun setupAdapter() {
         val newCurrencyAdapter =
-            adapterDelegateLayoutContainer<ListingItem, ListingItem>(R.layout.currency_rv_item) {
+            adapterDelegateLayoutContainer<CombinedAssetModel, CombinedAssetModel>(R.layout.currency_rv_item) {
                 item_ll.setOnClickListener {
                     viewModel().onCurrencySelected(this.item)
                 }
@@ -69,30 +68,33 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
                 }
 
                 bind {
-                    name.text = this.item.symbol
+                    name.text = this.item.cmcMapItem.symbol
                     Picasso.get()
-                        .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${this.item.id}.png")
+                        .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${this.item.cmcMapItem.id}.png")
                         .into(logo)
-                    price_tv.text = this.item.quote?.USD?.price?.format(2)
+                    price_tv.text = this.item.coinCapAssetItem.priceUsd
 
-                    if (viewModel().favouriteList.value?.contains(this.item.id) == true) {
+                    if (viewModel().favouriteList.value?.contains(this.item.cmcMapItem.id) == true) {
                         favourite_button.setImageResource(R.drawable.ic_favorite)
                     } else {
                         favourite_button.setImageResource(R.drawable.ic_favorite_border)
                     }
 
-                    val percentChange: Double? = this.item.quote?.USD?.percentChange24h?.also {
+                    val change24h: Double? =
+                        this.item.coinCapAssetItem.changePercent24Hr?.toDouble()
+
+                    change24h?.also {
                         when {
                             it < 0 -> price_change_tv.setTextColor(getColor(R.color.red))
                             it > 0 -> price_change_tv.setTextColor(getColor(R.color.green))
                             else -> price_change_tv.setTextColor(getColor(android.R.color.tab_indicator_text))
                         }
-                    }
 
-                    price_change_tv.text = "${percentChange?.format(2)}%"
+                        price_change_tv.text = it.formatWithPercent(2)
+                    }
                 }
             }
-        adapter = ListDelegationAdapter<List<ListingItem>>(newCurrencyAdapter)
+        adapter = ListDelegationAdapter<List<CombinedAssetModel>>(newCurrencyAdapter)
         currency_rv.addItemDecoration(
             DividerItemDecoration(
                 currency_rv.context,

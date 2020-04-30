@@ -1,6 +1,7 @@
 package com.kvladislav.cryptowise.models.coin_cap
 
-data class DataItem(
+data class CoinCapAssetItem(
+
     val symbol: String? = null,
     val volumeUsd24Hr: String? = null,
     val marketCapUsd: String? = null,

@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.models.CMCDataMinified
+import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
 import kotlinx.android.synthetic.main.fragment_currency_details.*
 import org.koin.androidx.viewmodel.ext.android.getViewModel
@@ -30,11 +31,11 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         const val CMC_ID_EXTRA = "CMC_ID_EXTRA"
         const val CMC_SYMBOL_EXTRA = "CMC_SYMBOL_EXTRA"
 
-        fun build(item: ListingItem): CurrencyDetailsFragment {
+        fun build(item: CombinedAssetModel): CurrencyDetailsFragment {
             return CurrencyDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(CMC_ID_EXTRA, item.id ?: throw IllegalStateException("Id is empty"))
-                    putString(CMC_SYMBOL_EXTRA, item.symbol ?: "")
+                    putInt(CMC_ID_EXTRA, item.cmcMapItem.id ?: throw IllegalStateException("Id is empty"))
+                    putString(CMC_SYMBOL_EXTRA, item.cmcMapItem.symbol ?: "")
                 }
             }
         }

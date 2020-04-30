@@ -2,7 +2,7 @@ package com.kvladislav.cryptowise.models.cmc_map
 
 import com.google.gson.annotations.SerializedName
 
-data class DataItem(
+data class CMCMapItem(
     val symbol: String? = null,
     @SerializedName("is_active")
     val isActive: Int? = null,

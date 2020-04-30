@@ -1,15 +1,17 @@
 package com.kvladislav.cryptowise.screens.overview
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.kvladislav.cryptowise.Preferences
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.extensions.transaction
+import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.CurrencySetWrapper
 import com.kvladislav.cryptowise.models.cmc_listings.ListingItem
+import com.kvladislav.cryptowise.models.cmc_map.CMCMapItem
+import com.kvladislav.cryptowise.models.coin_cap.CoinCapAssetItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsFragment
@@ -29,46 +31,33 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
     }
 
     val currencyListings = liveData(Dispatchers.IO) {
-        val listings = currencyRepository.getListings()
         val assets = coinCapRepository.getAssets()
-        Timber.d("BB ${listings.data?.count()} vs ${assets.data?.count()}")
+        val cmcMap = currencyRepository.getIDMap();
 
-        val notFound = mutableListOf<String?>()
+        cmcMap.data?.let { cmc ->
+            assets.data?.let { assets ->
+                emit(combineCMCWithCoinCap(cmc, assets))
+            }
+        }
+    }
 
-        val found = mutableListOf<String?>()
-
-        if (assets.data == null || listings.data == null) return@liveData
-
-        var wasFound = false
-
-        for (i in assets.data) {
-            val searchP = i.symbol
-
-            for (j in listings.data) {
-                if (j.symbol.equals(searchP)) {
-                    wasFound = true
-                    found.add(searchP)
+    private fun combineCMCWithCoinCap(
+        cmcMap: List<CMCMapItem>,
+        assets: List<CoinCapAssetItem>
+    ): List<CombinedAssetModel> {
+        val filteredAssets = mutableListOf<CombinedAssetModel>()
+        for (item in assets) {
+            for (cmcItem in cmcMap) {
+                if (cmcItem.symbol.equals(item.symbol)) {
+                    filteredAssets.add(CombinedAssetModel(cmcItem, item))
                     break
                 }
             }
-
-            if (!wasFound) {
-                notFound.add(searchP)
-            }
-            wasFound = false
-
         }
-
-        Timber.d("NF: ${notFound.count()}")
-        Timber.d("FF: ${found.count()}")
-        Timber.d("FF: ${notFound}")
-
-
-        emit(currencyRepository.getListings())
+        return filteredAssets;
     }
 
-    fun onCurrencySelected(item: ListingItem) {
-        Timber.d("Selected item: ${item.id} ${item.symbol}")
+    fun onCurrencySelected(item: CombinedAssetModel) {
         withActivity {
             it.supportFragmentManager.transaction {
                 addToBackStack(CurrencyDetailsFragment::class.java.canonicalName)
@@ -77,17 +66,17 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
         }
     }
 
-    fun onFavouriteCurrencyTap(item: ListingItem) {
-        if (item.id == null) return
+    fun onFavouriteCurrencyTap(item: CombinedAssetModel) {
+        if (item.cmcMapItem.id == null) return
         preferences.getFavouriteCurrencies().ids.run {
-            val newIds = if (this.contains(item.id)) {
-                this.minus(item.id)
+            val newIds = if (this.contains(item.cmcMapItem.id)) {
+                this.minus(item.cmcMapItem.id)
             } else {
-                this.plus(item.id)
+                this.plus(item.cmcMapItem.id)
             }
             preferences.setFavouriteCurrencies(CurrencySetWrapper(newIds))
             favouriteList.postValue(newIds)
         }
-        Timber.d("Favourite item: ${item.id} ${item.symbol}")
+        Timber.d("Favourite item: ${item.cmcMapItem.id} ${item.cmcMapItem.symbol}")
     }
 }
