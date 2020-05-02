@@ -7,6 +7,7 @@ import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.transactions.BuySellTransaction
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_transaction_list.*
 import kotlinx.android.synthetic.main.transaction_rv_item.*
 import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
@@ -33,7 +34,15 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         val transactionAdapter =
             adapterDelegateLayoutContainer<BuySellTransaction, BuySellTransaction>(R.layout.transaction_rv_item) {
                 bind {
-                    mock_tv.setText("${this.item}")
+                    val item = this.item
+                    operation_tv.text = "BUY/SELL"
+                    quantity_tv.text = "${item.coinQuantity} ${item.cmcSymbol}"
+                    date_tv.text = "${item.timestamp}"
+                    usd_tv.text = "received/paid ${item.usdPerCoin}$"
+
+                    Picasso.get()
+                        .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${item.cmcId}.png")
+                        .into(operation_iv)
                 }
             }
 
