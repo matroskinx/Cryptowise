@@ -67,12 +67,14 @@ class AddFragment : Fragment(R.layout.fragment_add) {
 
         const val CMC_ID_EXTRA = "CMC_ID_EXTRA"
         const val CMC_SYMBOL_EXTRA = "CMC_SYMBOL_EXTRA"
+        const val COINCAP_ID_EXTRA = "COINCAP_ID_EXTRA"
 
         fun build(cmcData: CMCDataMinified): AddFragment {
             return AddFragment().apply {
                 arguments = Bundle().apply {
                     putInt(CMC_ID_EXTRA, cmcData.id)
                     putString(CMC_SYMBOL_EXTRA, cmcData.symbol)
+                    putString(COINCAP_ID_EXTRA, cmcData.coinCapId)
                 }
             }
         }

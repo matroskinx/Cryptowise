@@ -3,6 +3,8 @@ package com.kvladislav.cryptowise.screens.currency
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -28,17 +30,40 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
     private fun parseArguments(bundle: Bundle?): CMCDataMinified {
         return bundle?.run {
-            CMCDataMinified(getInt(CMC_ID_EXTRA), getString(CMC_SYMBOL_EXTRA, ""))
+            CMCDataMinified(
+                getInt(CMC_ID_EXTRA),
+                getString(CMC_SYMBOL_EXTRA, ""),
+                getString(COINCAP_ID_EXTRA, "")
+            )
         } ?: throw IllegalArgumentException("Bundle was null during initialization")
     }
 
     override fun setupListeners() {
         add_tr_button.setOnClickListener { viewModel().onAddTransactionTap() }
+
+        day.setOnClickListener {
+            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.DAY)
+        }
+
+        week.setOnClickListener {
+            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.WEEK)
+        }
+
+        month.setOnClickListener {
+            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.MONTH)
+        }
+
+        month_3.setOnClickListener {
+            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.MONTH_3)
+        }
+
+        year.setOnClickListener {
+            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.YEAR)
+        }
     }
 
     override fun setupObservers() {
         viewModel().candlesData.observe(viewLifecycleOwner) {
-            Timber.d("candles response: $it")
             it.data?.let { candles ->
                 fillChartWithData(candles)
             }
@@ -49,7 +74,18 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         setupChart()
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel().requestCandles()
+    }
+
     private fun fillChartWithData(items: List<CandleItem?>) {
+        Timber.d("Candles amount: ${items.count()}")
+        if (items.count() == 0) {
+            Toast.makeText(context, "There is no candle data for this market!", Toast.LENGTH_LONG)
+                .show()
+            return
+        }
         val start = items[0]?.period!! / 1000000
         val candles = mutableListOf<CandleEntry>()
         var counter = 1
@@ -113,6 +149,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
     companion object {
         const val CMC_ID_EXTRA = "CMC_ID_EXTRA"
         const val CMC_SYMBOL_EXTRA = "CMC_SYMBOL_EXTRA"
+        const val COINCAP_ID_EXTRA = "COINCAP_ID_EXTRA"
 
         fun build(item: CombinedAssetModel): CurrencyDetailsFragment {
             return CurrencyDetailsFragment().apply {
@@ -122,6 +159,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
                         item.cmcMapItem.id ?: throw IllegalStateException("Id is empty")
                     )
                     putString(CMC_SYMBOL_EXTRA, item.cmcMapItem.symbol ?: "")
+                    putString(COINCAP_ID_EXTRA, item.coinCapAssetItem.id ?: "")
                 }
             }
         }

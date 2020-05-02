@@ -36,4 +36,34 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:text="@string/add_transaction" />
+
+    <Button
+        android:id="@+id/day"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="day" />
+
+    <Button
+        android:id="@+id/week"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="week" />
+
+    <Button
+        android:id="@+id/month"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="month" />
+
+    <Button
+        android:id="@+id/month_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="month3" />
+
+    <Button
+        android:id="@+id/year"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="year" />
 </LinearLayout>

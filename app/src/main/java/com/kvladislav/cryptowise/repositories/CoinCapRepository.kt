@@ -3,6 +3,7 @@ package com.kvladislav.cryptowise.repositories
 import com.google.gson.GsonBuilder
 import com.kvladislav.cryptowise.models.coin_cap.assets.CCAssetsResponse
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandlesResponse
+import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
 import com.kvladislav.cryptowise.services.CCService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,12 +21,39 @@ class CoinCapRepository {
         return webservice.getAssets(2000)
     }
 
-    suspend fun getCandles(assetId: String): CandlesResponse {
-        // by default try to compare with tether
-        return webservice.getCandles(interval = "h8", baseId = assetId, quoteId = "tether", start = 1586975561000, end = 1588271561000)
+    suspend fun getCandles(
+        exchangeId: String,
+        baseId: String,
+        quoteId: String = DEFAULT_QUOTE_ID,
+        interval: String,
+        start: Long? = null,
+        end: Long? = null
+    ): CandlesResponse {
+        return webservice.getCandles(
+            exchangeId = exchangeId,
+            interval = interval,
+            baseId = baseId,
+            quoteId = quoteId,
+            start = start,
+            end = end
+        )
+    }
+
+    suspend fun getTetherMarkets(
+        baseId: String,
+        quoteId: String = DEFAULT_QUOTE_ID
+    ): MarketsResponse {
+        return webservice.getMarkets(baseId, quoteId)
+    }
+
+    suspend fun getAllMarkets(
+        baseId: String
+    ): MarketsResponse {
+        return webservice.getMarkets(baseId = baseId)
     }
 
     companion object {
+        const val DEFAULT_QUOTE_ID = "tether"
         const val CC_BASE_URL = "https://api.coincap.io/"
     }
 

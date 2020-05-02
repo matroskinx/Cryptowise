@@ -27,7 +27,8 @@ class BuySellPagerFragment : BaseFragment(R.layout.fragment_buy_sell_pager) {
         return arguments?.run {
             CMCDataMinified(
                 getInt(AddFragment.CMC_ID_EXTRA),
-                getString(AddFragment.CMC_SYMBOL_EXTRA, "")
+                getString(AddFragment.CMC_SYMBOL_EXTRA, ""),
+                getString(AddFragment.COINCAP_ID_EXTRA, "")
             )
         } ?: throw IllegalArgumentException("Bundle was null during initialization")
     }

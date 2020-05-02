@@ -33,7 +33,10 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
         val assets = coinCapRepository.getAssets()
         val cmcMap = currencyRepository.getIDMap();
 
-        cmcMap.data?.let { cmc ->
+
+        val cmcMapData = cmcMap.data?.sortedBy { it.rank }
+
+        cmcMapData?.let { cmc ->
             assets.data?.let { assets ->
                 emit(combineCMCWithCoinCap(cmc, assets))
             }
