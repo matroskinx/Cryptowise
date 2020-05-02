@@ -7,8 +7,10 @@ import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CMCDataMinified
+import com.kvladislav.cryptowise.models.coin_cap.ExchangeItem
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandlesResponse
 import com.kvladislav.cryptowise.models.coin_cap.markets.MarketItem
+import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
 import kotlinx.coroutines.launch
@@ -23,12 +25,12 @@ class CurrencyDetailsViewModel(
     private val cmcData: CMCDataMinified
 ) : BaseViewModel(), KoinComponent {
     init {
-        Timber.d("INIIIT: $cmcData")
+        Timber.d("init: $cmcData")
     }
 
     private val coinCapRepository: CoinCapRepository by inject()
     val candlesData: MutableLiveData<CandlesResponse> = MutableLiveData()
-    val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
+    private val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
 
     fun requestCandles() {
         viewModelScope.launch {
@@ -40,10 +42,7 @@ class CurrencyDetailsViewModel(
                 val requestParams = getCoinCapIntervalParams(
                     timeInterval.value ?: throw IllegalStateException("Time interval is null")
                 )
-
-
-                Timber.d("RP: $requestParams")
-
+                Timber.d("request params: $requestParams")
                 candlesData.postValue(
                     coinCapRepository.getCandles(
                         exchangeId = exchangeId,
@@ -61,15 +60,44 @@ class CurrencyDetailsViewModel(
 
 
     private suspend fun loadDataFromFirstAvailableMarket(): String? {
-        var markets = coinCapRepository.getTetherMarkets(cmcData.coinCapId)
-        if (markets.data?.count() == 0) {
-            Timber.d("Fallback to all markets: ${cmcData.coinCapId}")
-            markets = coinCapRepository.getAllMarkets(cmcData.coinCapId)
-            Timber.d("$markets")
+        val allMarkets = coinCapRepository.getExchanges()
+        val coinMarkets: MarketsResponse =
+            coinCapRepository.getTetherMarkets(cmcData.coinCapId).run {
+                if (this.data == null || this.data.count() == 0) {
+                    return@run coinCapRepository.getAllMarkets(cmcData.coinCapId)
+                } else {
+                    return@run this
+                }
+            }
+
+        val marketRankMap = createMarketRankMap(allMarkets.data!!)
+        var bestMarket: String? = null
+        var currentRank = -1
+        val coinNames: List<String>? = coinMarkets.data?.map {
+            it.exchangeId ?: ""
         }
-        return markets.data?.let {
-            findBestMarket(markets = it)?.exchangeId
+        Timber.d("All markets: $marketRankMap")
+        Timber.d("Available markets names: $coinNames")
+
+        coinNames?.forEach {
+            if (currentRank == -1 || currentRank > marketRankMap[it]!!) {
+                currentRank = marketRankMap[it]!!
+                bestMarket = it
+            }
         }
+
+        Timber.d("Picked best market: $bestMarket")
+
+        return bestMarket
+    }
+
+    private fun createMarketRankMap(items: List<ExchangeItem>): HashMap<String, Int> {
+        val map = HashMap<String, Int>()
+        items.forEach {
+            if (it.exchangeId != null && it.rank != null)
+                map[it.exchangeId] = it.rank.toInt()
+        }
+        return map;
     }
 
     private fun findBestMarket(markets: List<MarketItem>): MarketItem? {
@@ -93,39 +121,14 @@ class CurrencyDetailsViewModel(
     }
 
     private fun getCoinCapIntervalParams(interval: TimeInterval): IntervalStore {
-        val currentTime = System.currentTimeMillis()
-
+        val now = System.currentTimeMillis()
         return when (interval) {
-            TimeInterval.DAY -> IntervalStore(
-                (currentTime - DAY_INTERVAL),
-                currentTime,
-                "h1"
-            )
-            TimeInterval.WEEK -> IntervalStore(
-                (currentTime - WEEK_INTERVAL),
-                currentTime,
-                "h8"
-            )
-            TimeInterval.MONTH -> IntervalStore(
-                (currentTime - MONTH_INTERVAL),
-                currentTime,
-                "d1"
-            )
-            TimeInterval.MONTH_3 -> IntervalStore(
-                (currentTime - MONTH_INTERVAL * 3),
-                currentTime,
-                "d1"
-            )
-            TimeInterval.MONTH_6 -> IntervalStore(
-                (currentTime - MONTH_INTERVAL * 6),
-                currentTime,
-                "d1"
-            )
-            TimeInterval.YEAR -> IntervalStore(
-                (currentTime - MONTH_INTERVAL * 12),
-                currentTime,
-                "d1"
-            )
+            TimeInterval.DAY -> IntervalStore((now - DAY_INTERVAL), now, "h1")
+            TimeInterval.WEEK -> IntervalStore((now - WEEK_INTERVAL), now, "h8")
+            TimeInterval.MONTH -> IntervalStore((now - MONTH_INTERVAL), now, "d1")
+            TimeInterval.MONTH_3 -> IntervalStore((now - MONTH_INTERVAL * 3), now, "d1")
+            TimeInterval.MONTH_6 -> IntervalStore((now - MONTH_INTERVAL * 6), now, "d1")
+            TimeInterval.YEAR -> IntervalStore((now - MONTH_INTERVAL * 12), now, "d1")
         }
     }
 

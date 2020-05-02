@@ -1,20 +1,21 @@
 package com.kvladislav.cryptowise.repositories
 
 import com.google.gson.GsonBuilder
+import com.kvladislav.cryptowise.models.coin_cap.ExchangesResponse
 import com.kvladislav.cryptowise.models.coin_cap.assets.CCAssetsResponse
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandlesResponse
 import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
-import com.kvladislav.cryptowise.services.CCService
+import com.kvladislav.cryptowise.services.CoinCapService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class CoinCapRepository {
 
-    private val webservice: CCService by lazy {
+    private val webservice: CoinCapService by lazy {
         Retrofit.Builder()
             .baseUrl(CC_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
-            .build().create(CCService::class.java)
+            .build().create(CoinCapService::class.java)
     }
 
     suspend fun getAssets(): CCAssetsResponse {
@@ -50,6 +51,10 @@ class CoinCapRepository {
         baseId: String
     ): MarketsResponse {
         return webservice.getMarkets(baseId = baseId)
+    }
+
+    suspend fun getExchanges(): ExchangesResponse {
+        return webservice.getExchanges()
     }
 
     companion object {
