@@ -40,25 +40,18 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
     override fun setupListeners() {
         add_tr_button.setOnClickListener { viewModel().onAddTransactionTap() }
-
-        day.setOnClickListener {
-            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.DAY)
-        }
-
-        week.setOnClickListener {
-            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.WEEK)
-        }
-
-        month.setOnClickListener {
-            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.MONTH)
-        }
-
-        month_3.setOnClickListener {
-            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.MONTH_3)
-        }
-
-        year.setOnClickListener {
-            viewModel().onIntervalChange(CurrencyDetailsViewModel.TimeInterval.YEAR)
+        chip_group.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.day_chip -> CurrencyDetailsViewModel.TimeInterval.DAY
+                R.id.week_chip -> CurrencyDetailsViewModel.TimeInterval.WEEK
+                R.id.month_chip -> CurrencyDetailsViewModel.TimeInterval.MONTH
+                R.id.month_3_chip -> CurrencyDetailsViewModel.TimeInterval.MONTH_3
+                R.id.month_6_chip -> CurrencyDetailsViewModel.TimeInterval.MONTH_6
+                R.id.year_chip -> CurrencyDetailsViewModel.TimeInterval.YEAR
+                else -> throw IllegalArgumentException("Unable to find enum value for button $checkedId")
+            }.run {
+                viewModel().onIntervalChange(this)
+            }
         }
     }
 
@@ -72,6 +65,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
     override fun setupView() {
         setupChart()
+        day_chip.isChecked = true
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

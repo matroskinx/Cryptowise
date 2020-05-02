@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -37,33 +38,65 @@
         android:layout_marginEnd="24dp"
         android:text="@string/add_transaction" />
 
-    <Button
-        android:id="@+id/day"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="day" />
 
-    <Button
-        android:id="@+id/week"
-        android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="week" />
+        android:scrollbars="none">
 
-    <Button
-        android:id="@+id/month"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="month" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true">
 
-    <Button
-        android:id="@+id/month_3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="month3" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/day_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/day" />
 
-    <Button
-        android:id="@+id/year"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="year" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/week_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/week" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/month_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/month" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/month_3_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_3_months" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/month_6_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_6_months" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/year_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/year" />
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
 </LinearLayout>

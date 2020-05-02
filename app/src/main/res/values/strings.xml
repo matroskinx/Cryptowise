@@ -15,4 +15,10 @@
     <string name="add">Add</string>
     <string name="add_transaction">Add transaction</string>
     <string name="transaction_success">Transaction successfully saved</string>
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="_3_months">3 Months</string>
+    <string name="_6_months">6 Months</string>
+    <string name="year">Year</string>
 </resources>
