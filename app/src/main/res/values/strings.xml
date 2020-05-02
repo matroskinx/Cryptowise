@@ -21,4 +21,5 @@
     <string name="_3_months">3 Months</string>
     <string name="_6_months">6 Months</string>
     <string name="year">Year</string>
+    <string name="portfolio_status">Portfolio status</string>
 </resources>
