@@ -5,12 +5,14 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CandleStickChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.Legend.LegendForm
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.CandleData
-import com.github.mikephil.charting.data.CandleDataSet
-import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.data.*
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.extensions.observe
@@ -59,12 +61,37 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         viewModel().candlesData.observe(viewLifecycleOwner) {
             it.data?.let { candles ->
                 fillChartWithData(candles)
+                fillVolumeChartWithData(candles)
             }
         }
     }
 
+    private fun fillVolumeChartWithData(candles: List<CandleItem?>) {
+        if (candles.count() == 0) {
+            Toast.makeText(context, "There is no candle data for this market!", Toast.LENGTH_LONG)
+                .show()
+            return
+        }
+        var start = 1f
+        val values: ArrayList<BarEntry> = ArrayList()
+        for (candle in candles) {
+            values.add(BarEntry(start, candle?.volume?.toFloat() ?: 0f))
+            start++
+        }
+        val dataSet = BarDataSet(values, "Volume (amount of asset traded)")
+        dataSet.color = ContextCompat.getColor(requireContext(), R.color.red)
+        dataSet.setDrawIcons(false)
+        dataSet.setDrawValues(false)
+        val data = BarData(dataSet)
+        data.setValueTextSize(8f)
+        data.barWidth = 0.7f
+        volume_chart.data = data
+        volume_chart.invalidate()
+    }
+
     override fun setupView() {
         setupChart()
+        setupVolumeChart()
         day_chip.isChecked = true
     }
 
@@ -80,14 +107,12 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
                 .show()
             return
         }
-        val start = items[0]?.period!! / 1000000
         val candles = mutableListOf<CandleEntry>()
         var counter = 1
         for (candle in items) {
             candles.add(
                 CandleEntry(
                     counter.toFloat(),
-//                    candle?.period?.toFloat()?.div(1000000)?.minus(start) ?: 0f,
                     candle?.high?.toFloat() ?: 0f,
                     candle?.low?.toFloat() ?: 0f,
                     candle?.open?.toFloat() ?: 0f,
@@ -97,7 +122,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             counter++
         }
 
-        val dataSet = CandleDataSet(candles, "btc")
+        val dataSet = CandleDataSet(candles, "OHLC Candles")
 
         dataSet.setDrawIcons(false)
         dataSet.setDrawValues(false)
@@ -123,11 +148,10 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         candleStickChart.setPinchZoom(false)
         candleStickChart.setDrawGridBackground(false)
         val xAxis = candleStickChart.xAxis
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.position = XAxisPosition.BOTTOM
         xAxis.setLabelCount(2, true)
         xAxis.setDrawGridLines(false)
         xAxis.isEnabled = false
-
 
         val leftAxis = candleStickChart.axisLeft
         leftAxis.setLabelCount(7, false)
@@ -136,8 +160,41 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         val rightAxis = candleStickChart.axisRight
         rightAxis.isEnabled = false
+    }
 
-        candleStickChart.legend.isEnabled = false
+    private fun setupVolumeChart() {
+        volume_chart.setDrawBarShadow(false)
+        volume_chart.description.isEnabled = false
+        volume_chart.setMaxVisibleValueCount(60)
+        volume_chart.setDrawValueAboveBar(false)
+
+        volume_chart.setPinchZoom(false)
+
+        volume_chart.setDrawGridBackground(false)
+
+        val xAxis: XAxis = volume_chart.xAxis
+        xAxis.position = XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.isEnabled = false
+        xAxis.granularity = 1f // only intervals of 1 day
+
+        val leftAxis: YAxis = volume_chart.axisLeft
+        leftAxis.setLabelCount(5, false)
+        leftAxis.setDrawGridLines(false)
+        leftAxis.setDrawAxisLine(false)
+
+        val rightAxis: YAxis = volume_chart.axisRight
+        rightAxis.isEnabled = false
+
+        val l: Legend = volume_chart.legend
+        l.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+        l.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+        l.orientation = Legend.LegendOrientation.HORIZONTAL
+        l.setDrawInside(false)
+        l.form = LegendForm.SQUARE
+        l.formSize = 9f
+        l.textSize = 11f
+        l.xEntrySpace = 4f
     }
 
     companion object {
