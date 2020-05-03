@@ -1,5 +1,6 @@
 package com.kvladislav.cryptowise.di
 
+import com.kvladislav.cryptowise.DataStorage
 import com.kvladislav.cryptowise.Preferences
 import com.kvladislav.cryptowise.database.TransactionDatabase
 import com.kvladislav.cryptowise.models.CMCDataMinified
@@ -24,7 +25,7 @@ val appModules = module {
     single { CoinCapRepository() }
     single { Preferences(get()) }
     single { TransactionDatabase.getDatabase(androidApplication()) }
+    single { DataStorage() }
     factory { get<TransactionDatabase>().transactionDao() }
-
     single { TransactionRepository() }
 }

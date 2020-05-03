@@ -3,6 +3,7 @@ package com.kvladislav.cryptowise.screens.currency
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.kvladislav.cryptowise.DataStorage
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.extensions.transaction
@@ -10,7 +11,6 @@ import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.coin_cap.ExchangeItem
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandlesResponse
-import com.kvladislav.cryptowise.models.coin_cap.markets.MarketItem
 import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
@@ -30,13 +30,14 @@ class CurrencyDetailsViewModel(
     }
 
     private val coinCapRepository: CoinCapRepository by inject()
+    private val dataStorage: DataStorage by inject()
     val candlesData: MutableLiveData<CandlesResponse> = MutableLiveData()
     private val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
 
     fun requestCandles() {
         viewModelScope.launch {
             try {
-                val exchangeId = loadDataFromFirstAvailableMarket()
+                val exchangeId = loadDataFromBestMarket()
                     ?: throw IllegalStateException("Was unable to find market")
                 Timber.d("From market: $exchangeId")
 
@@ -60,7 +61,7 @@ class CurrencyDetailsViewModel(
     }
 
 
-    private suspend fun loadDataFromFirstAvailableMarket(): String? {
+    private suspend fun loadDataFromBestMarket(): String? {
         val allMarkets = coinCapRepository.getExchanges()
         val coinMarkets: MarketsResponse =
             coinCapRepository.getTetherMarkets(cmcData.coinCapId).run {
@@ -74,16 +75,20 @@ class CurrencyDetailsViewModel(
         val marketRankMap = createMarketRankMap(allMarkets.data!!)
         var bestMarket: String? = null
         var currentRank = -1
-        val coinNames: List<String>? = coinMarkets.data?.map {
+        val marketNames: Set<String>? = coinMarkets.data?.map {
             it.exchangeId ?: ""
-        }
-        Timber.d("All markets: $marketRankMap")
-        Timber.d("Available markets names: $coinNames")
+        }?.toSet()
 
-        coinNames?.forEach {
-            if (currentRank == -1 || currentRank > marketRankMap[it]!!) {
-                currentRank = marketRankMap[it]!!
-                bestMarket = it
+        val intersection = marketNames?.intersect(DataStorage.TRUSTWORTHY_PROVIDERS)
+
+        Timber.d("All markets: $marketRankMap")
+        Timber.d("Available markets names: $marketNames")
+        Timber.d("Intersection: $intersection")
+
+        intersection?.forEach { market ->
+            if (currentRank == -1 || currentRank > marketRankMap[market]!!) {
+                currentRank = marketRankMap[market]!!
+                bestMarket = market
             }
         }
 
@@ -99,17 +104,6 @@ class CurrencyDetailsViewModel(
                 map[it.exchangeId] = it.rank.toInt()
         }
         return map;
-    }
-
-    private fun findBestMarket(markets: List<MarketItem>): MarketItem? {
-        var bestMarket: MarketItem? = markets[0]
-        val bestRank: Int = markets[0].rank!!.toInt()
-        for (market in markets) {
-            if (market.rank != null && market.rank.toInt() < bestRank) {
-                bestMarket = market
-            }
-        }
-        return bestMarket
     }
 
     fun onAddTransactionTap() {

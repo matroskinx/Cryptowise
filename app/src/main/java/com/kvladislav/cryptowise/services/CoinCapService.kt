@@ -23,7 +23,8 @@ interface CoinCapService {
 
     @GET("v2/markets")
     suspend fun getMarkets(
-        @Query("baseId") baseId: String,
+        @Query("exchangeId") exchangeId: String? = null,
+        @Query("baseId") baseId: String? = null,
         @Query("quoteId") quoteId: String? = null,
         @Query("limit") limit: Int = 2000
     ): MarketsResponse
@@ -31,5 +32,5 @@ interface CoinCapService {
     @GET("v2/exchanges")
     suspend fun getExchanges(
         @Query("limit") limit: Int = 1000
-    ) : ExchangesResponse
+    ): ExchangesResponse
 }

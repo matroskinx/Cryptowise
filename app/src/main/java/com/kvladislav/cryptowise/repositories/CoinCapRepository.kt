@@ -40,6 +40,12 @@ class CoinCapRepository {
         )
     }
 
+    suspend fun getMarketsByExchangeId(
+        exchangeId: String
+    ): MarketsResponse {
+        return webservice.getMarkets(quoteId = DEFAULT_QUOTE_ID, exchangeId = exchangeId)
+    }
+
     suspend fun getTetherMarkets(
         baseId: String,
         quoteId: String = DEFAULT_QUOTE_ID

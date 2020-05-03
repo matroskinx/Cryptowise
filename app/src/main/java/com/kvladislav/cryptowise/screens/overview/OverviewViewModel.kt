@@ -3,6 +3,8 @@ package com.kvladislav.cryptowise.screens.overview
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
+import com.kvladislav.cryptowise.DataStorage
+import com.kvladislav.cryptowise.DataStorage.Companion.TRUSTWORTHY_PROVIDERS
 import com.kvladislav.cryptowise.Preferences
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
@@ -23,35 +25,51 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
     private val currencyRepository: CurrencyRepository by inject()
     private val coinCapRepository: CoinCapRepository by inject()
     private val preferences: Preferences by inject()
+    private val dataStorage: DataStorage by inject()
+
     val favouriteList: MutableLiveData<Set<Int>> = MutableLiveData()
 
     init {
         favouriteList.value = preferences.getFavouriteCurrencies().ids
     }
 
+    private suspend fun getCoinIdsFromTrustworthyProviders(): HashSet<String> {
+        val coinIds = hashSetOf<String>()
+        for (provider in TRUSTWORTHY_PROVIDERS) {
+            val response = coinCapRepository.getMarketsByExchangeId(exchangeId = provider)
+            response.data?.run {
+                val ids = this.map {
+                    it.baseId ?: ""
+                }
+                coinIds.addAll(ids)
+            }
+        }
+        return coinIds
+    }
+
     val currencyListings = liveData(Dispatchers.IO) {
         val assets = coinCapRepository.getAssets()
-        val cmcMap = currencyRepository.getIDMap();
-
-
+        val cmcMap = currencyRepository.getIDMap()
+        val coinIds = getCoinIdsFromTrustworthyProviders()
+        dataStorage.setTrustworthyCoins(coinIds)
         val cmcMapData = cmcMap.data?.sortedBy { it.rank }
-
         cmcMapData?.let { cmc ->
             assets.data?.let { assets ->
-                emit(combineCMCWithCoinCap(cmc, assets))
+                emit(combineCMCWithCoinCap(cmc, assets, coinIds))
             }
         }
     }
 
     private fun combineCMCWithCoinCap(
         cmcMap: List<CMCMapItem>,
-        assets: List<CoinCapAssetItem>
+        assets: List<CoinCapAssetItem>,
+        trustyCoins: HashSet<String>
     ): List<CombinedAssetModel> {
         val filteredAssets = mutableListOf<CombinedAssetModel>()
-        for (item in assets) {
+        for (coinCapItem in assets) {
             for (cmcItem in cmcMap) {
-                if (cmcItem.symbol.equals(item.symbol)) {
-                    filteredAssets.add(CombinedAssetModel(cmcItem, item))
+                if (cmcItem.symbol.equals(coinCapItem.symbol) && trustyCoins.contains(coinCapItem.id)) {
+                    filteredAssets.add(CombinedAssetModel(cmcItem, coinCapItem))
                     break
                 }
             }
