@@ -8,6 +8,7 @@ import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.coin_cap.ExchangeItem
+import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandlesResponse
 import com.kvladislav.cryptowise.models.coin_cap.markets.MarketItem
 import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
@@ -130,6 +131,29 @@ class CurrencyDetailsViewModel(
             TimeInterval.MONTH_6 -> IntervalStore((now - MONTH_INTERVAL * 6), now, "d1")
             TimeInterval.YEAR -> IntervalStore((now - MONTH_INTERVAL * 12), now, "d1")
         }
+    }
+
+    private fun candlesAverage(candles: List<CandleItem>): Float {
+        var sum = 0f
+        candles.forEach {
+            sum += it.close?.toFloat() ?: 0f
+        }
+        return sum / candles.count()
+    }
+
+    fun simpleMovingAverage(candles: List<CandleItem>, period: Int): List<Float> {
+        val candlesPeriodic: MutableList<List<CandleItem>> = mutableListOf()
+
+        for (x in 0..candles.count() - period) {
+            candlesPeriodic.add(candles.subList(x, x + period))
+        }
+
+        val movingAverages = mutableListOf<Float>()
+
+        candlesPeriodic.forEach {
+            movingAverages.add(candlesAverage(it))
+        }
+        return movingAverages
     }
 
     fun onIntervalChange(interval: TimeInterval) {

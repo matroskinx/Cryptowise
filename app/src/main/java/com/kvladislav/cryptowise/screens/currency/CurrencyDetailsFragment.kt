@@ -29,6 +29,17 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
     override fun viewModel(): CurrencyDetailsViewModel =
         getViewModel { parametersOf(parseArguments(arguments)) }
 
+    override fun setupView() {
+        setupChart()
+        setupVolumeChart()
+        day_chip.isChecked = true
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel().requestCandles()
+    }
+
 
     private fun parseArguments(bundle: Bundle?): CMCDataMinified {
         return bundle?.run {
@@ -62,45 +73,12 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             it.data?.let { candles ->
                 fillChartWithData(candles)
                 fillVolumeChartWithData(candles)
+                calculateSimpleMovingAverage(candles)
             }
         }
     }
 
-    private fun fillVolumeChartWithData(candles: List<CandleItem?>) {
-        if (candles.count() == 0) {
-            Toast.makeText(context, "There is no candle data for this market!", Toast.LENGTH_LONG)
-                .show()
-            return
-        }
-        var start = 1f
-        val values: ArrayList<BarEntry> = ArrayList()
-        for (candle in candles) {
-            values.add(BarEntry(start, candle?.volume?.toFloat() ?: 0f))
-            start++
-        }
-        val dataSet = BarDataSet(values, "Volume (amount of asset traded)")
-        dataSet.color = ContextCompat.getColor(requireContext(), R.color.red)
-        dataSet.setDrawIcons(false)
-        dataSet.setDrawValues(false)
-        val data = BarData(dataSet)
-        data.setValueTextSize(8f)
-        data.barWidth = 0.7f
-        volume_chart.data = data
-        volume_chart.invalidate()
-    }
-
-    override fun setupView() {
-        setupChart()
-        setupVolumeChart()
-        day_chip.isChecked = true
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel().requestCandles()
-    }
-
-    private fun fillChartWithData(items: List<CandleItem?>) {
+    private fun fillChartWithData(items: List<CandleItem>) {
         Timber.d("Candles amount: ${items.count()}")
         if (items.count() == 0) {
             Toast.makeText(context, "There is no candle data for this market!", Toast.LENGTH_LONG)
@@ -113,10 +91,10 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             candles.add(
                 CandleEntry(
                     counter.toFloat(),
-                    candle?.high?.toFloat() ?: 0f,
-                    candle?.low?.toFloat() ?: 0f,
-                    candle?.open?.toFloat() ?: 0f,
-                    candle?.close?.toFloat() ?: 0f
+                    candle.high?.toFloat() ?: 0f,
+                    candle.low?.toFloat() ?: 0f,
+                    candle.open?.toFloat() ?: 0f,
+                    candle.close?.toFloat() ?: 0f
                 )
             )
             counter++
@@ -139,6 +117,55 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         ohlcv_chart.data = data
         ohlcv_chart.invalidate()
+    }
+
+    private fun fillVolumeChartWithData(candles: List<CandleItem>) {
+        if (candles.count() == 0) {
+            Toast.makeText(context, "There is no candle data for this market!", Toast.LENGTH_LONG)
+                .show()
+            return
+        }
+        var start = 1f
+        val values: ArrayList<BarEntry> = ArrayList()
+        for (candle in candles) {
+            values.add(BarEntry(start, candle.volume?.toFloat() ?: 0f))
+            start++
+        }
+        val dataSet = BarDataSet(values, "Volume (amount of asset traded)")
+        dataSet.color = ContextCompat.getColor(requireContext(), R.color.red)
+        dataSet.setDrawIcons(false)
+        dataSet.setDrawValues(false)
+        val data = BarData(dataSet)
+        data.setValueTextSize(8f)
+        data.barWidth = 0.7f
+        volume_chart.data = data
+        volume_chart.invalidate()
+    }
+
+    private fun calculateSimpleMovingAverage(candles: List<CandleItem>) {
+        val period = 5
+        val sma = viewModel().simpleMovingAverage(candles, period)
+        val values: ArrayList<Entry> = ArrayList()
+        var start = 1f
+        val fillDataLen = period - 1
+
+        for (i in 0..fillDataLen) {
+            values.add(Entry(start, 0f))
+            start++
+        }
+
+        for (v in sma) {
+            values.add(Entry(start, v))
+            start++
+        }
+
+        val dataSet = LineDataSet(values, "SMA 5")
+        val lineData = LineData(dataSet)
+
+        line_chart.data = lineData
+        line_chart.invalidate()
+
+        Timber.d("SMA5: $sma")
     }
 
     private fun setupChart() {
@@ -195,6 +222,10 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         l.formSize = 9f
         l.textSize = 11f
         l.xEntrySpace = 4f
+    }
+
+    private fun setupLineChart() {
+
     }
 
     companion object {

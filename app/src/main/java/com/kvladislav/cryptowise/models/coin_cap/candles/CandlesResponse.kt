@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class CandlesResponse(
 
 	@field:SerializedName("data")
-	val data: List<CandleItem?>? = null,
+	val data: List<CandleItem>? = null,
 
 	@field:SerializedName("timestamp")
 	val timestamp: Long? = null
