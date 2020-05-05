@@ -23,7 +23,7 @@ import java.lang.IllegalStateException
 
 class CurrencyDetailsViewModel(
     private val context: Context,
-    private val cmcData: CMCDataMinified
+    val cmcData: CMCDataMinified
 ) : BaseViewModel(), KoinComponent {
     init {
         Timber.d("init: $cmcData")
@@ -45,15 +45,14 @@ class CurrencyDetailsViewModel(
                     timeInterval.value ?: throw IllegalStateException("Time interval is null")
                 )
                 Timber.d("request params: $requestParams")
-                candlesData.postValue(
-                    coinCapRepository.getCandles(
-                        exchangeId = exchangeId,
-                        baseId = cmcData.coinCapId,
-                        interval = requestParams.interval,
-                        start = requestParams.start,
-                        end = requestParams.end
-                    )
+
+                val candles = coinCapRepository.getCandles(
+                    exchangeId = exchangeId, baseId = cmcData.coinCapId,
+                    interval = requestParams.interval, start = requestParams.start,
+                    end = requestParams.end
                 )
+
+                candlesData.postValue(candles)
             } catch (e: Exception) {
                 Timber.e(e)
             }
@@ -125,29 +124,6 @@ class CurrencyDetailsViewModel(
             TimeInterval.MONTH_6 -> IntervalStore((now - MONTH_INTERVAL * 6), now, "d1")
             TimeInterval.YEAR -> IntervalStore((now - MONTH_INTERVAL * 12), now, "d1")
         }
-    }
-
-    private fun candlesAverage(candles: List<CandleItem>): Float {
-        var sum = 0f
-        candles.forEach {
-            sum += it.close?.toFloat() ?: 0f
-        }
-        return sum / candles.count()
-    }
-
-    fun simpleMovingAverage(candles: List<CandleItem>, period: Int): List<Float> {
-        val candlesPeriodic: MutableList<List<CandleItem>> = mutableListOf()
-
-        for (x in 0..candles.count() - period) {
-            candlesPeriodic.add(candles.subList(x, x + period))
-        }
-
-        val movingAverages = mutableListOf<Float>()
-
-        candlesPeriodic.forEach {
-            movingAverages.add(candlesAverage(it))
-        }
-        return movingAverages
     }
 
     fun onIntervalChange(interval: TimeInterval) {

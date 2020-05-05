@@ -19,7 +19,11 @@ import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
+import com.kvladislav.cryptowise.utils.TAUtils
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_currency_details.*
+import kotlinx.android.synthetic.main.fragment_currency_details.crypto_iv
+import kotlinx.android.synthetic.main.fragment_currency_details.crypto_tv
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
@@ -33,6 +37,12 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         setupChart()
         setupVolumeChart()
         day_chip.isChecked = true
+
+        Picasso.get()
+            .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${viewModel().cmcData.id}.png")
+            .into(crypto_iv)
+        val str = "${viewModel().cmcData.symbol}/USDT"
+        crypto_tv.text = str
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -144,7 +154,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
     private fun calculateSimpleMovingAverage(candles: List<CandleItem>) {
         val period = 5
-        val sma = viewModel().simpleMovingAverage(candles, period)
+        val sma = TAUtils.simpleMovingAverage(candles, period)
         val values: ArrayList<Entry> = ArrayList()
         var start = 1f
         val fillDataLen = period - 1
@@ -164,8 +174,19 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         line_chart.data = lineData
         line_chart.invalidate()
+        fillInSMAS(candles)
+    }
 
-        Timber.d("SMA5: $sma")
+    private fun fillInSMAS(candles: List<CandleItem>) {
+        val periods = mutableListOf(5, 10)
+        val views = mutableListOf(sma_5, sma_10)
+
+        for (i in 0 until periods.count()) {
+            val sma = TAUtils.simpleMovingAverage(candles, periods[i])
+            Timber.d("SSSSMMMM: $sma")
+            views[i].text = sma.last().toString()
+        }
+
     }
 
     private fun setupChart() {
