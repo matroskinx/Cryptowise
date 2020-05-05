@@ -28,4 +28,6 @@
     <string name="simple_moving_average_30">Simple moving average (30)</string>
     <string name="simple_moving_average_50">Simple moving average (50)</string>
     <string name="simple_moving_average_100">Simple moving average (100)</string>
+    <string name="ema_12">Exp moving average (12)</string>
+    <string name="ema_26">Exp moving average (26)</string>
 </resources>

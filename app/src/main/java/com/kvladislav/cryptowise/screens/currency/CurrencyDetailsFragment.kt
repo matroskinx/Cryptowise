@@ -86,9 +86,11 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
                 val allCandles = viewModel().getCurrentTimeFrameCandles()
                 val dataPointCount = CurrencyDetailsViewModel.TimeInterval.getCandleCount(this)
                 buildSMA(allCandles, dataPointCount)
+                buildEMA(allCandles, dataPointCount)
             }
         }
     }
+
 
     private fun buildSMA(allCandles: List<CandleItem>, dataPointCount: Int) {
         val periods = mutableListOf(5, 10, 20, 30, 50, 100)
@@ -105,6 +107,37 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             views[i].text = sma.last().toString()
         }
     }
+
+    private fun buildEMA(allCandles: List<CandleItem>, dataPointCount: Int) {
+        val periods = mutableListOf(10, 20)
+        val views = mutableListOf(ema_12, ema_26)
+
+        for (i in 0 until periods.count()) {
+            val emas = calculateEMA(allCandles, periods[i])
+            views[i].text = emas.last().toString()
+            displaySimpleMovingAverage(emas)
+        }
+    }
+
+    private fun calculateEMA(allCandles: List<CandleItem>, mockPeriod: Int): MutableList<Float> {
+        val periodCandles = allCandles.takeLast(mockPeriod * 2)
+        val smaCandles = periodCandles.take(mockPeriod)
+        val emaCandles = periodCandles.takeLast(mockPeriod)
+        val initialSMA = TAUtils.candlesAverage(smaCandles)
+
+        val smoothingConstant: Float = 2f / (mockPeriod + 1)
+
+        val EMAs = mutableListOf<Float>()
+        for (i in 0 until emaCandles.count()) {
+            val previousDay = if (i == 0) initialSMA else (EMAs[i - 1])
+            val value =
+                (emaCandles[i].close!!.toFloat() - previousDay) * smoothingConstant + previousDay
+            EMAs.add(value)
+        }
+
+        return EMAs
+    }
+
 
     private fun fillChartWithData(items: List<CandleItem>) {
         Timber.d("Candles amount: ${items.count()}")

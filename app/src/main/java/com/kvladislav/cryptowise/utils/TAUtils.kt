@@ -4,7 +4,7 @@ import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 
 class TAUtils {
     companion object {
-        private fun candlesAverage(candles: List<CandleItem>): Float {
+        fun candlesAverage(candles: List<CandleItem>): Float {
             var sum = 0f
             candles.forEach {
                 sum += it.close?.toFloat() ?: 0f
