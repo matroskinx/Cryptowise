@@ -43,18 +43,12 @@ class CurrencyDetailsViewModel(
     val eightHourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
     val dayData: MutableLiveData<List<CandleItem>> = MutableLiveData();
 
-
     fun requestCandles() {
         viewModelScope.launch {
             try {
                 val exchangeId = loadDataFromBestMarket()
                     ?: throw IllegalStateException("Was unable to find market")
                 Timber.d("From market: $exchangeId")
-
-                val requestParams = getCoinCapIntervalParams(
-                    timeInterval.value ?: throw IllegalStateException("Time interval is null")
-                )
-                Timber.d("request params: $requestParams")
 
                 val hourCandles = coinCapRepository.getCandles(
                     exchangeId = exchangeId,
@@ -94,17 +88,6 @@ class CurrencyDetailsViewModel(
                 chartData.postValue(dayData.value?.take(count) ?: mutableListOf())
         }
     }
-
-    private fun printCandlesDate(candles: List<CandleItem>) {
-        val fmt = SimpleDateFormat("dd/MM/yyyy mm:ss aa")
-        val formattedDate = fmt.format(candles.first().period!!)
-        Timber.d(formattedDate)
-
-        val fmt1 = SimpleDateFormat("dd/MM/yyyy mm:ss aa")
-        val formattedDate1 = fmt.format(candles.last().period!!)
-        Timber.d(formattedDate1)
-    }
-
 
     private suspend fun loadDataFromBestMarket(): String? {
         val allMarkets = coinCapRepository.getExchanges()
@@ -160,27 +143,14 @@ class CurrencyDetailsViewModel(
         }
     }
 
-    private fun getCoinCapIntervalParams(interval: TimeInterval): IntervalStore {
-        val now = System.currentTimeMillis()
-        return when (interval) {
-            TimeInterval.DAY -> IntervalStore((now - DAY_INTERVAL), now, "h1")
-            TimeInterval.WEEK -> IntervalStore((now - WEEK_INTERVAL), now, "h8")
-            TimeInterval.MONTH -> IntervalStore((now - MONTH_INTERVAL), now, "d1")
-            TimeInterval.MONTH_3 -> IntervalStore((now - MONTH_INTERVAL * 3), now, "d1")
-            TimeInterval.MONTH_6 -> IntervalStore((now - MONTH_INTERVAL * 6), now, "d1")
-            TimeInterval.YEAR -> IntervalStore((now - MONTH_INTERVAL * 12), now, "d1")
-        }
-    }
-
     fun onIntervalChange(interval: TimeInterval) {
         timeInterval.postValue(interval)
         postCorrespondingData(interval)
     }
 
-    data class IntervalStore(val start: Long, val end: Long, val interval: String)
-
     enum class TimeInterval {
         DAY, WEEK, MONTH, MONTH_3, MONTH_6, YEAR;
+
         companion object {
             fun getCandleCount(interval: TimeInterval): Int {
                 return when (interval) {
