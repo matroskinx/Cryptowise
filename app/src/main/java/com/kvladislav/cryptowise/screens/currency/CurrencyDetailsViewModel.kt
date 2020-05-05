@@ -78,14 +78,29 @@ class CurrencyDetailsViewModel(
         }
     }
 
+    fun getCurrentTimeFrameCandles(): List<CandleItem> {
+        return timeInterval.value?.run {
+            return@run when (this) {
+                TimeInterval.DAY -> hourData.value
+                TimeInterval.WEEK -> eightHourData.value
+                TimeInterval.MONTH,
+                TimeInterval.MONTH_3,
+                TimeInterval.MONTH_6,
+                TimeInterval.YEAR -> dayData.value
+            }
+        } ?: mutableListOf()
+    }
+
     private fun postCorrespondingData(interval: TimeInterval) {
         val count = TimeInterval.getCandleCount(interval)
         when (interval) {
-            TimeInterval.DAY -> chartData.postValue(hourData.value?.take(count) ?: mutableListOf())
+            TimeInterval.DAY -> chartData.postValue(
+                hourData.value?.takeLast(count) ?: mutableListOf()
+            )
             TimeInterval.WEEK ->
-                chartData.postValue(eightHourData.value?.take(count) ?: mutableListOf())
+                chartData.postValue(eightHourData.value?.takeLast(count) ?: mutableListOf())
             TimeInterval.MONTH, TimeInterval.MONTH_3, TimeInterval.MONTH_6, TimeInterval.YEAR ->
-                chartData.postValue(dayData.value?.take(count) ?: mutableListOf())
+                chartData.postValue(dayData.value?.takeLast(count) ?: mutableListOf())
         }
     }
 

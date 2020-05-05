@@ -50,7 +50,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         viewModel().requestCandles()
     }
 
-
     private fun parseArguments(bundle: Bundle?): CMCDataMinified {
         return bundle?.run {
             CMCDataMinified(
@@ -82,7 +81,28 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         viewModel().chartData.observe(viewLifecycleOwner) { candles ->
             fillChartWithData(candles)
             fillVolumeChartWithData(candles)
-            displaySimpleMovingAverage(candles)
+            //////////////
+            viewModel().timeInterval.value?.run {
+                val allCandles = viewModel().getCurrentTimeFrameCandles()
+                val dataPointCount = CurrencyDetailsViewModel.TimeInterval.getCandleCount(this)
+                buildSMA(allCandles, dataPointCount)
+            }
+        }
+    }
+
+    private fun buildSMA(allCandles: List<CandleItem>, dataPointCount: Int) {
+        val periods = mutableListOf(5, 10, 20, 30, 50, 100)
+        val views = mutableListOf(sma_5, sma_10, sma_20, sma_30, sma_50, sma_100)
+
+        val fillPeriodIdx = 0
+
+        for (i in 0 until periods.count()) {
+            val periodCandles = allCandles.takeLast(dataPointCount + periods[i] - 1)
+            val sma = TAUtils.simpleMovingAverage(periodCandles, periods[i])
+            if (i == fillPeriodIdx) {
+                displaySimpleMovingAverage(sma)
+            }
+            views[i].text = sma.last().toString()
         }
     }
 
@@ -150,40 +170,19 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         volume_chart.invalidate()
     }
 
-    private fun displaySimpleMovingAverage(candles: List<CandleItem>) {
-        val period = 5
-        val sma = TAUtils.simpleMovingAverage(candles, period)
+    private fun displaySimpleMovingAverage(sma: List<Float>) {
+        Timber.d("Displaying on chart: ${sma.count()}")
         val values: ArrayList<Entry> = ArrayList()
         var start = 1f
-        val fillDataLen = period - 1
-
-        for (i in 0..fillDataLen) {
-            values.add(Entry(start, 0f))
-            start++
-        }
-
         for (v in sma) {
             values.add(Entry(start, v))
             start++
         }
-
         val dataSet = LineDataSet(values, "SMA 5")
         val lineData = LineData(dataSet)
 
         line_chart.data = lineData
         line_chart.invalidate()
-        fillInSMAS(candles)
-    }
-
-    private fun fillInSMAS(candles: List<CandleItem>) {
-        val periods = mutableListOf(5, 10)
-        val views = mutableListOf(sma_5, sma_10)
-
-        for (i in 0 until periods.count()) {
-            val sma = TAUtils.simpleMovingAverage(candles, periods[i])
-            views[i].text = sma.last().toString()
-        }
-
     }
 
     private fun setupChart() {
@@ -240,10 +239,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         l.formSize = 9f
         l.textSize = 11f
         l.xEntrySpace = 4f
-    }
-
-    private fun setupLineChart() {
-
     }
 
     companion object {

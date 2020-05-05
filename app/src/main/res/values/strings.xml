@@ -22,6 +22,10 @@
     <string name="_6_months">6 Months</string>
     <string name="year">Year</string>
     <string name="portfolio_status">Portfolio status</string>
-    <string name="simple_moving_average_10">Simple moving average (10)</string>
     <string name="simple_moving_average_5">Simple moving average (5)</string>
+    <string name="simple_moving_average_10">Simple moving average (10)</string>
+    <string name="simple_moving_average_20">Simple moving average (20)</string>
+    <string name="simple_moving_average_30">Simple moving average (30)</string>
+    <string name="simple_moving_average_50">Simple moving average (50)</string>
+    <string name="simple_moving_average_100">Simple moving average (100)</string>
 </resources>
