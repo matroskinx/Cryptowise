@@ -79,12 +79,10 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
     }
 
     override fun setupObservers() {
-        viewModel().candlesData.observe(viewLifecycleOwner) {
-            it.data?.let { candles ->
-                fillChartWithData(candles)
-                fillVolumeChartWithData(candles)
-                calculateSimpleMovingAverage(candles)
-            }
+        viewModel().chartData.observe(viewLifecycleOwner) { candles ->
+            fillChartWithData(candles)
+            fillVolumeChartWithData(candles)
+            displaySimpleMovingAverage(candles)
         }
     }
 
@@ -152,7 +150,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         volume_chart.invalidate()
     }
 
-    private fun calculateSimpleMovingAverage(candles: List<CandleItem>) {
+    private fun displaySimpleMovingAverage(candles: List<CandleItem>) {
         val period = 5
         val sma = TAUtils.simpleMovingAverage(candles, period)
         val values: ArrayList<Entry> = ArrayList()
@@ -183,7 +181,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         for (i in 0 until periods.count()) {
             val sma = TAUtils.simpleMovingAverage(candles, periods[i])
-            Timber.d("SSSSMMMM: $sma")
             views[i].text = sma.last().toString()
         }
 

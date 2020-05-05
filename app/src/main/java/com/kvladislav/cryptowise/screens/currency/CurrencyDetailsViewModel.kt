@@ -20,6 +20,9 @@ import org.koin.core.inject
 import timber.log.Timber
 import java.lang.Exception
 import java.lang.IllegalStateException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.HashMap
 
 class CurrencyDetailsViewModel(
     private val context: Context,
@@ -31,8 +34,15 @@ class CurrencyDetailsViewModel(
 
     private val coinCapRepository: CoinCapRepository by inject()
     private val dataStorage: DataStorage by inject()
-    val candlesData: MutableLiveData<CandlesResponse> = MutableLiveData()
-    private val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
+    val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
+
+    // data only for chart display
+    val chartData: MutableLiveData<List<CandleItem>> = MutableLiveData()
+
+    val hourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
+    val eightHourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
+    val dayData: MutableLiveData<List<CandleItem>> = MutableLiveData();
+
 
     fun requestCandles() {
         viewModelScope.launch {
@@ -46,17 +56,53 @@ class CurrencyDetailsViewModel(
                 )
                 Timber.d("request params: $requestParams")
 
-                val candles = coinCapRepository.getCandles(
-                    exchangeId = exchangeId, baseId = cmcData.coinCapId,
-                    interval = requestParams.interval, start = requestParams.start,
-                    end = requestParams.end
+                val hourCandles = coinCapRepository.getCandles(
+                    exchangeId = exchangeId,
+                    baseId = cmcData.coinCapId,
+                    interval = "h1"
                 )
+                hourData.postValue(hourCandles.data ?: mutableListOf())
+                val eightHourCandles = coinCapRepository.getCandles(
+                    exchangeId = exchangeId,
+                    baseId = cmcData.coinCapId,
+                    interval = "h8"
+                )
+                eightHourData.postValue(eightHourCandles.data ?: mutableListOf())
+                val dayCandles = coinCapRepository.getCandles(
+                    exchangeId = exchangeId,
+                    baseId = cmcData.coinCapId,
+                    interval = "d1"
+                )
+                dayData.postValue(dayCandles.data ?: mutableListOf())
 
-                candlesData.postValue(candles)
+                timeInterval.value?.run {
+                    postCorrespondingData(interval = this)
+                }
             } catch (e: Exception) {
                 Timber.e(e)
             }
         }
+    }
+
+    private fun postCorrespondingData(interval: TimeInterval) {
+        val count = TimeInterval.getCandleCount(interval)
+        when (interval) {
+            TimeInterval.DAY -> chartData.postValue(hourData.value?.take(count) ?: mutableListOf())
+            TimeInterval.WEEK ->
+                chartData.postValue(eightHourData.value?.take(count) ?: mutableListOf())
+            TimeInterval.MONTH, TimeInterval.MONTH_3, TimeInterval.MONTH_6, TimeInterval.YEAR ->
+                chartData.postValue(dayData.value?.take(count) ?: mutableListOf())
+        }
+    }
+
+    private fun printCandlesDate(candles: List<CandleItem>) {
+        val fmt = SimpleDateFormat("dd/MM/yyyy mm:ss aa")
+        val formattedDate = fmt.format(candles.first().period!!)
+        Timber.d(formattedDate)
+
+        val fmt1 = SimpleDateFormat("dd/MM/yyyy mm:ss aa")
+        val formattedDate1 = fmt.format(candles.last().period!!)
+        Timber.d(formattedDate1)
     }
 
 
@@ -128,13 +174,25 @@ class CurrencyDetailsViewModel(
 
     fun onIntervalChange(interval: TimeInterval) {
         timeInterval.postValue(interval)
-        requestCandles()
+        postCorrespondingData(interval)
     }
 
     data class IntervalStore(val start: Long, val end: Long, val interval: String)
 
     enum class TimeInterval {
-        DAY, WEEK, MONTH, MONTH_3, MONTH_6, YEAR
+        DAY, WEEK, MONTH, MONTH_3, MONTH_6, YEAR;
+        companion object {
+            fun getCandleCount(interval: TimeInterval): Int {
+                return when (interval) {
+                    DAY -> 24
+                    WEEK -> 21
+                    MONTH -> 30
+                    MONTH_3 -> 90
+                    MONTH_6 -> 180
+                    YEAR -> 365
+                }
+            }
+        }
     }
 
     companion object {
