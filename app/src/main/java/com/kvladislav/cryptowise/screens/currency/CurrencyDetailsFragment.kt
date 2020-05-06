@@ -22,8 +22,6 @@ import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.utils.TAUtils
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_currency_details.*
-import kotlinx.android.synthetic.main.fragment_currency_details.crypto_iv
-import kotlinx.android.synthetic.main.fragment_currency_details.crypto_tv
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
@@ -36,6 +34,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
     override fun setupView() {
         setupChart()
         setupVolumeChart()
+        setupLineChart()
         day_chip.isChecked = true
 
         Picasso.get()
@@ -193,7 +192,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             start++
         }
         val dataSet = BarDataSet(values, "Volume (amount of asset traded)")
-        dataSet.color = ContextCompat.getColor(requireContext(), R.color.red)
+        dataSet.color = ContextCompat.getColor(requireContext(), R.color.blue)
         dataSet.setDrawIcons(false)
         dataSet.setDrawValues(false)
         val data = BarData(dataSet)
@@ -212,7 +211,12 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             start++
         }
         val dataSet = LineDataSet(values, "SMA 5")
+        context?.run {
+            dataSet.setCircleColor(ContextCompat.getColor(this, R.color.blue))
+            dataSet.color = ContextCompat.getColor(this, R.color.blue)
+        }
         val lineData = LineData(dataSet)
+        lineData.setDrawValues(false)
 
         line_chart.data = lineData
         line_chart.invalidate()
@@ -225,15 +229,11 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         candleStickChart.setPinchZoom(false)
         candleStickChart.setDrawGridBackground(false)
         val xAxis = candleStickChart.xAxis
-        xAxis.position = XAxisPosition.BOTTOM
-        xAxis.setLabelCount(2, true)
         xAxis.setDrawGridLines(false)
         xAxis.isEnabled = false
 
         val leftAxis = candleStickChart.axisLeft
-        leftAxis.setLabelCount(7, false)
-        leftAxis.setDrawGridLines(false)
-        leftAxis.setDrawAxisLine(false)
+        leftAxis.enableGridDashedLine(10f, 10f, 0f)
 
         val rightAxis = candleStickChart.axisRight
         rightAxis.isEnabled = false
@@ -256,22 +256,33 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         xAxis.granularity = 1f // only intervals of 1 day
 
         val leftAxis: YAxis = volume_chart.axisLeft
-        leftAxis.setLabelCount(5, false)
-        leftAxis.setDrawGridLines(false)
-        leftAxis.setDrawAxisLine(false)
+        leftAxis.enableGridDashedLine(10f, 10f, 0f)
 
         val rightAxis: YAxis = volume_chart.axisRight
         rightAxis.isEnabled = false
+    }
 
-        val l: Legend = volume_chart.legend
-        l.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-        l.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-        l.orientation = Legend.LegendOrientation.HORIZONTAL
-        l.setDrawInside(false)
-        l.form = LegendForm.SQUARE
-        l.formSize = 9f
-        l.textSize = 11f
-        l.xEntrySpace = 4f
+    private fun setupLineChart() {
+        val rightAxis = line_chart.axisRight
+        rightAxis.setDrawGridLines(false)
+        rightAxis.isEnabled = false
+
+        val xAxis = line_chart.xAxis
+        xAxis.setDrawGridLines(false)
+        xAxis.isEnabled = false
+
+        line_chart.setBackgroundColor(Color.WHITE)
+        line_chart.description.isEnabled = false
+        line_chart.setTouchEnabled(true)
+        line_chart.setDrawGridBackground(false)
+        line_chart.isDragEnabled = true
+        line_chart.setScaleEnabled(true)
+        line_chart.setPinchZoom(true)
+
+        xAxis.enableGridDashedLine(10f, 10f, 0f)
+
+        val yAxis = line_chart.axisLeft
+        yAxis.enableGridDashedLine(10f, 10f, 0f)
     }
 
     companion object {

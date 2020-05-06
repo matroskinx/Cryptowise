@@ -6,6 +6,7 @@ import com.kvladislav.cryptowise.database.TransactionDatabase
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
+import com.kvladislav.cryptowise.repositories.PortfolioRepository
 import com.kvladislav.cryptowise.repositories.TransactionRepository
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsViewModel
 import com.kvladislav.cryptowise.screens.overview.OverviewViewModel
@@ -27,5 +28,7 @@ val appModules = module {
     single { TransactionDatabase.getDatabase(androidApplication()) }
     single { DataStorage() }
     factory { get<TransactionDatabase>().transactionDao() }
+    factory { get<TransactionDatabase>().portfolioDao() }
     single { TransactionRepository() }
+    single { PortfolioRepository() }
 }

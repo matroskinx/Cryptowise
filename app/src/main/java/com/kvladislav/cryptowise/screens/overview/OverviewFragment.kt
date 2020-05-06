@@ -7,6 +7,7 @@ import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
+import com.kvladislav.cryptowise.extensions.formatDigits
 import com.kvladislav.cryptowise.extensions.formatWithPercent
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.extensions.transaction
@@ -29,9 +30,24 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
     }
 
     override fun setupObservers() {
-        viewModel().currencyListings.observe(viewLifecycleOwner) { fillAdapterData(it) }
+        viewModel().currencyListings.observe(viewLifecycleOwner) {
+            fillAdapterData(it)
+            viewModel().tryUpdatePortfolioValue()
+        }
         viewModel().favouriteList.observe(viewLifecycleOwner) {
             adapter.notifyDataSetChanged()
+        }
+        viewModel().portfolioAssets.observe(viewLifecycleOwner) {
+            viewModel().tryUpdatePortfolioValue()
+            adapter.notifyDataSetChanged()
+            Timber.d("Portfolio: $it")
+        }
+
+        viewModel().portfolioValue.observe(viewLifecycleOwner) {
+            Timber.d("Sum: $it")
+            val text = it.formatDigits(2) + "$"
+            adapter.notifyDataSetChanged()
+            portfolio_value_tv.text = text
         }
     }
 
@@ -54,6 +70,20 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
     private fun setLoadedView() {
         progress_bar.visibility = View.GONE
         currency_rv.visibility = View.VISIBLE
+    }
+
+    private fun setupHoldingsValue(coinCapId: String, assetValue: Double): String {
+        val dashString = getString(R.string.dash)
+        val portfolioValue = viewModel().portfolioValue.value ?: return dashString
+        if (portfolioValue == 0.0) {
+            return dashString
+        }
+        val portfolioAsset = viewModel().portfolioAssets.value?.find {
+            it.coinCapId == coinCapId
+        } ?: return dashString
+
+        val percent = (portfolioAsset.assetAmount * assetValue) / portfolioValue * 100
+        return "${percent.formatDigits(4)}%"
     }
 
     private fun setupAdapter() {
@@ -92,6 +122,12 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
                         price_change_tv.text = it.formatWithPercent(2)
                     }
+
+                    holdings_tv.text = setupHoldingsValue(
+                        this.item.coinCapAssetItem.id!!,
+                        this.item.coinCapAssetItem.priceUsd!!.toDouble()
+                    )
+
                 }
             }
         adapter = ListDelegationAdapter<List<CombinedAssetModel>>(newCurrencyAdapter)

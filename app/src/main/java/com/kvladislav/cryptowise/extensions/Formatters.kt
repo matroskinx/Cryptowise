@@ -8,3 +8,7 @@ fun Double.formatWithPercent(digits: Int): String {
     }
 }
 
+fun Double.formatDigits(digits: Int): String {
+    return "%.${digits}f".format(this)
+}
+

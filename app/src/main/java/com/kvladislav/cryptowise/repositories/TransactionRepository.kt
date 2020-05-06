@@ -13,5 +13,4 @@ class TransactionRepository : KoinComponent {
     suspend fun addTransaction(transaction: BuySellTransaction) {
         transactionDao.insert(transaction)
     }
-
 }

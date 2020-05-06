@@ -15,6 +15,7 @@ import com.kvladislav.cryptowise.models.cmc_map.CMCMapItem
 import com.kvladislav.cryptowise.models.coin_cap.assets.CoinCapAssetItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
+import com.kvladislav.cryptowise.repositories.PortfolioRepository
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsFragment
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.KoinComponent
@@ -22,10 +23,13 @@ import org.koin.core.inject
 import timber.log.Timber
 
 class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinComponent {
-    private val currencyRepository: CurrencyRepository by inject()
+    private val coinMarketCapRepo: CurrencyRepository by inject()
     private val coinCapRepository: CoinCapRepository by inject()
+    private val portfolioRepository: PortfolioRepository by inject()
     private val preferences: Preferences by inject()
     private val dataStorage: DataStorage by inject()
+
+    val portfolioValue: MutableLiveData<Double> = MutableLiveData(0.0)
 
     val favouriteList: MutableLiveData<Set<Int>> = MutableLiveData()
 
@@ -47,9 +51,13 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
         return coinIds
     }
 
+    val portfolioAssets = liveData(Dispatchers.IO) {
+        emitSource(portfolioRepository.allAssets)
+    }
+
     val currencyListings = liveData(Dispatchers.IO) {
         val assets = coinCapRepository.getAssets()
-        val cmcMap = currencyRepository.getIDMap()
+        val cmcMap = coinMarketCapRepo.getIDMap()
         val coinIds = getCoinIdsFromTrustworthyProviders()
         dataStorage.setTrustworthyCoins(coinIds)
         val cmcMapData = cmcMap.data?.sortedBy { it.rank }
@@ -59,6 +67,29 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
             }
         }
     }
+
+    fun tryUpdatePortfolioValue() {
+        Timber.d("Setting up portfolio value")
+        val listings = currencyListings.value ?: return
+        val portfolioAssets = portfolioAssets.value ?: return
+        Timber.d("Track is ready!")
+
+        var sum = 0.0
+        portfolioAssets.forEach { portfolioItem ->
+            val asset = listings.find {
+                portfolioItem.coinCapId == it.coinCapAssetItem.id
+            }
+            if (asset != null && asset.coinCapAssetItem.id != null) {
+                val price = asset.coinCapAssetItem.priceUsd!!.toDouble()
+                Timber.d("Asset price: $price; Sum before: $sum")
+                sum += price * portfolioItem.assetAmount
+                Timber.d("Sum after: $sum")
+            }
+        }
+
+        portfolioValue.postValue(sum)
+    }
+
 
     private fun combineCMCWithCoinCap(
         cmcMap: List<CMCMapItem>,
