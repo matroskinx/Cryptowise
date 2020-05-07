@@ -16,14 +16,14 @@ import com.kvladislav.cryptowise.screens.transaction.TransactionListFragment
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_overview.*
 import kotlinx.android.synthetic.main.currency_rv_item.*
-import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
 import timber.log.Timber
 
 class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     lateinit var adapter: ListDelegationAdapter<List<CombinedAssetModel>>
 
-    override fun viewModel(): OverviewViewModel = getSharedViewModel()
+    override fun viewModel(): OverviewViewModel = getViewModel()
 
     override fun setupView() {
         setupAdapter()

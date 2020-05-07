@@ -1,6 +1,15 @@
 package com.kvladislav.cryptowise.screens.transaction
 
+import android.graphics.Color
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.utils.ColorTemplate
+import com.github.mikephil.charting.utils.MPPointF
 import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
@@ -11,22 +20,125 @@ import com.kvladislav.cryptowise.models.transactions.BuySellTransaction
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_transaction_list.*
 import kotlinx.android.synthetic.main.transaction_rv_item.*
-import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list) {
     private lateinit var adapter: ListDelegationAdapter<List<BuySellTransaction>>
 
-    override fun viewModel(): TransactionListViewModel = getSharedViewModel()
+    override fun viewModel(): TransactionListViewModel = getViewModel()
 
     override fun setupView() {
         setupAdapter()
+        setupPieChart()
+    }
+
+    private fun setupPieChart() {
+        pie_chart.setUsePercentValues(true)
+        pie_chart.description.isEnabled = false
+        pie_chart.setExtraOffsets(5f, 10f, 5f, 5f)
+
+        pie_chart.dragDecelerationFrictionCoef = 0.95f
+
+        pie_chart.centerText = "ABC"
+
+        pie_chart.isDrawHoleEnabled = true
+        pie_chart.setHoleColor(Color.TRANSPARENT)
+
+        pie_chart.setTransparentCircleColor(Color.TRANSPARENT)
+        pie_chart.setTransparentCircleAlpha(110)
+
+        pie_chart.holeRadius = 32f
+        pie_chart.transparentCircleRadius = 32f
+
+        pie_chart.setDrawCenterText(true)
+
+        pie_chart.rotationAngle = 0f
+        // enable rotation of the chart by touch
+        // enable rotation of the chart by touch
+        pie_chart.isRotationEnabled = true
+        pie_chart.isHighlightPerTapEnabled = true
+
+        // chart.setUnit(" €");
+        // chart.setDrawUnitsInChart(true);
+
+        // add a selection listener
+        // chart.setUnit(" €");
+        // chart.setDrawUnitsInChart(true);
+        // add a selection listener
+
+
+        pie_chart.animateY(1400, Easing.EaseInOutQuad)
+        // chart.spin(2000, 0, 360);
+
+        pie_chart.spin(2000, 0f, 360f, Easing.EaseInCubic)
+        val l: Legend = pie_chart.getLegend()
+        l.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        l.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+        l.orientation = Legend.LegendOrientation.VERTICAL
+        l.setDrawInside(false)
+        l.xEntrySpace = 7f
+        l.yEntrySpace = 0f
+        l.yOffset = 0f
+
+        pie_chart.setEntryLabelColor(Color.WHITE)
+        pie_chart.setEntryLabelTextSize(12f)
+    }
+
+    fun setupChartData() {
+        val entries = mutableListOf<PieEntry>()
+        for (i in 1..3) {
+            entries.add(i - 1, PieEntry(i * 10f))
+        }
+
+
+        val pieDataSet = PieDataSet(entries, "Pieeee")
+
+
+        pieDataSet.setDrawIcons(false)
+
+        pieDataSet.sliceSpace = 3f
+        pieDataSet.iconsOffset = MPPointF(0f, 40f)
+        pieDataSet.selectionShift = 5f
+
+        // add a lot of colors
+
+        // add a lot of colors
+        val colors: ArrayList<Int> = ArrayList()
+
+        for (c in ColorTemplate.VORDIPLOM_COLORS) colors.add(c)
+
+        for (c in ColorTemplate.JOYFUL_COLORS) colors.add(c)
+
+        for (c in ColorTemplate.COLORFUL_COLORS) colors.add(c)
+
+        for (c in ColorTemplate.LIBERTY_COLORS) colors.add(c)
+
+        for (c in ColorTemplate.PASTEL_COLORS) colors.add(c)
+
+        colors.add(ColorTemplate.getHoloBlue())
+
+        pieDataSet.colors = colors
+        //dataSet.setSelectionShift(0f);
+
+        //dataSet.setSelectionShift(0f);
+        val data = PieData(pieDataSet)
+        data.setValueFormatter(PercentFormatter(pie_chart))
+        data.setValueTextSize(11f)
+        data.setValueTextColor(Color.WHITE)
+        pie_chart.data = data
+
+        pie_chart.highlightValues(null)
+
+        pie_chart.invalidate()
     }
 
     override fun setupObservers() {
         viewModel().allTransactions.observe(viewLifecycleOwner) {
+            setupChartData()
             Timber.d("Triggered observer: $it")
             adapter.items = it
             adapter.notifyDataSetChanged()
