@@ -8,6 +8,7 @@ import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.repositories.PortfolioRepository
 import com.kvladislav.cryptowise.repositories.TransactionRepository
+import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsViewModel
 import com.kvladislav.cryptowise.screens.overview.OverviewViewModel
 import com.kvladislav.cryptowise.screens.transaction.BuySellPagerViewModel
@@ -22,6 +23,7 @@ val appModules = module {
     viewModel<TransactionListViewModel>()
     viewModel { (data: CMCDataMinified) -> BuySellPagerViewModel(get(), data) }
     viewModel { (data: CMCDataMinified) -> CurrencyDetailsViewModel(get(), data) }
+    viewModel<AppViewModel>()
     single { CurrencyRepository() }
     single { CoinCapRepository() }
     single { Preferences(get()) }

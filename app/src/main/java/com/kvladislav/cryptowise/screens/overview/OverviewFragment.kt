@@ -1,5 +1,6 @@
 package com.kvladislav.cryptowise.screens.overview
 
+import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,38 +13,46 @@ import com.kvladislav.cryptowise.extensions.formatWithPercent
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CombinedAssetModel
+import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.screens.transaction.TransactionListFragment
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_overview.*
 import kotlinx.android.synthetic.main.currency_rv_item.*
+import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import timber.log.Timber
 
 class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
-    lateinit var adapter: ListDelegationAdapter<List<CombinedAssetModel>>
+    private lateinit var adapter: ListDelegationAdapter<List<CombinedAssetModel>>
+    private lateinit var appViewModel: AppViewModel
 
     override fun viewModel(): OverviewViewModel = getViewModel()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        appViewModel = getSharedViewModel()
+    }
 
     override fun setupView() {
         setupAdapter()
     }
 
     override fun setupObservers() {
-        viewModel().currencyListings.observe(viewLifecycleOwner) {
+        appViewModel.currencyListings.observe(viewLifecycleOwner) {
+            appViewModel.tryUpdatePortfolioValue()
             fillAdapterData(it)
-            viewModel().tryUpdatePortfolioValue()
         }
         viewModel().favouriteList.observe(viewLifecycleOwner) {
             adapter.notifyDataSetChanged()
         }
-        viewModel().portfolioAssets.observe(viewLifecycleOwner) {
-            viewModel().tryUpdatePortfolioValue()
+        appViewModel.portfolioAssets.observe(viewLifecycleOwner) {
+            appViewModel.tryUpdatePortfolioValue()
             adapter.notifyDataSetChanged()
             Timber.d("Portfolio: $it")
         }
 
-        viewModel().portfolioValue.observe(viewLifecycleOwner) {
+        appViewModel.portfolioValue.observe(viewLifecycleOwner) {
             Timber.d("Sum: $it")
             val text = it.formatDigits(2) + "$"
             adapter.notifyDataSetChanged()
@@ -74,11 +83,11 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     private fun setupHoldingsValue(coinCapId: String, assetValue: Double): String {
         val dashString = getString(R.string.dash)
-        val portfolioValue = viewModel().portfolioValue.value ?: return dashString
+        val portfolioValue = appViewModel.portfolioValue.value ?: return dashString
         if (portfolioValue == 0.0) {
             return dashString
         }
-        val portfolioAsset = viewModel().portfolioAssets.value?.find {
+        val portfolioAsset = appViewModel.portfolioAssets.value?.find {
             it.coinCapId == coinCapId
         } ?: return dashString
 

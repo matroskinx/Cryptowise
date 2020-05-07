@@ -68,13 +68,9 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         // add a selection listener
         // chart.setUnit(" €");
         // chart.setDrawUnitsInChart(true);
-        // add a selection listener
-
 
         pie_chart.animateY(1400, Easing.EaseInOutQuad)
-        // chart.spin(2000, 0, 360);
 
-        pie_chart.spin(2000, 0f, 360f, Easing.EaseInCubic)
         val l: Legend = pie_chart.getLegend()
         l.verticalAlignment = Legend.LegendVerticalAlignment.TOP
         l.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
@@ -94,9 +90,7 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
             entries.add(i - 1, PieEntry(i * 10f))
         }
 
-
         val pieDataSet = PieDataSet(entries, "Pieeee")
-
 
         pieDataSet.setDrawIcons(false)
 
@@ -104,9 +98,6 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         pieDataSet.iconsOffset = MPPointF(0f, 40f)
         pieDataSet.selectionShift = 5f
 
-        // add a lot of colors
-
-        // add a lot of colors
         val colors: ArrayList<Int> = ArrayList()
 
         for (c in ColorTemplate.VORDIPLOM_COLORS) colors.add(c)
@@ -122,17 +113,12 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         colors.add(ColorTemplate.getHoloBlue())
 
         pieDataSet.colors = colors
-        //dataSet.setSelectionShift(0f);
-
-        //dataSet.setSelectionShift(0f);
         val data = PieData(pieDataSet)
         data.setValueFormatter(PercentFormatter(pie_chart))
         data.setValueTextSize(11f)
         data.setValueTextColor(Color.WHITE)
         pie_chart.data = data
-
         pie_chart.highlightValues(null)
-
         pie_chart.invalidate()
     }
 
