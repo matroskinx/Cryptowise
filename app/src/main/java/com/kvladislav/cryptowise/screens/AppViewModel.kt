@@ -7,6 +7,8 @@ import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.cmc_map.CMCMapItem
 import com.kvladislav.cryptowise.models.coin_cap.assets.CoinCapAssetItem
+import com.kvladislav.cryptowise.models.portfolio.DisplayPortfolioItem
+import com.kvladislav.cryptowise.models.portfolio.FullPortfolio
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.repositories.PortfolioRepository
@@ -20,8 +22,7 @@ class AppViewModel : BaseViewModel(), KoinComponent {
     private val coinMarketCapRepo: CurrencyRepository by inject()
     private val coinCapRepository: CoinCapRepository by inject()
     private val portfolioRepository: PortfolioRepository by inject()
-
-    val portfolioValue: MutableLiveData<Double> = MutableLiveData(0.0)
+    val fullPortfolio: MutableLiveData<FullPortfolio> = MutableLiveData()
 
     val portfolioAssets = liveData(Dispatchers.IO) {
         Timber.d("BLOOOOCK")
@@ -72,13 +73,15 @@ class AppViewModel : BaseViewModel(), KoinComponent {
         return filteredAssets;
     }
 
-    fun tryUpdatePortfolioValue() {
+    fun tryUpdatePortfolio() {
         Timber.d("Setting up portfolio value")
         val listings = currencyListings.value ?: return
         val portfolioAssets = portfolioAssets.value ?: return
         Timber.d("Track is ready!")
 
         var sum = 0.0
+        val displayItems = mutableListOf<DisplayPortfolioItem>()
+
         portfolioAssets.forEach { portfolioItem ->
             val asset = listings.find {
                 portfolioItem.coinCapId == it.coinCapAssetItem.id
@@ -87,10 +90,12 @@ class AppViewModel : BaseViewModel(), KoinComponent {
                 val price = asset.coinCapAssetItem.priceUsd!!.toDouble()
                 Timber.d("Asset price: $price; Sum before: $sum")
                 sum += price * portfolioItem.assetAmount
+                displayItems.add(DisplayPortfolioItem(portfolioItem, price))
                 Timber.d("Sum after: $sum")
             }
         }
 
-        portfolioValue.postValue(sum)
+        val portfolio = FullPortfolio(sum, displayItems)
+        fullPortfolio.postValue(portfolio)
     }
 }

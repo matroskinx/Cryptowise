@@ -40,21 +40,21 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     override fun setupObservers() {
         appViewModel.currencyListings.observe(viewLifecycleOwner) {
-            appViewModel.tryUpdatePortfolioValue()
+            appViewModel.tryUpdatePortfolio()
             fillAdapterData(it)
         }
         viewModel().favouriteList.observe(viewLifecycleOwner) {
             adapter.notifyDataSetChanged()
         }
         appViewModel.portfolioAssets.observe(viewLifecycleOwner) {
-            appViewModel.tryUpdatePortfolioValue()
+            appViewModel.tryUpdatePortfolio()
             adapter.notifyDataSetChanged()
             Timber.d("Portfolio: $it")
         }
 
-        appViewModel.portfolioValue.observe(viewLifecycleOwner) {
+        appViewModel.fullPortfolio.observe(viewLifecycleOwner) {
             Timber.d("Sum: $it")
-            val text = it.formatDigits(2) + "$"
+            val text = it.value.formatDigits(2) + "$"
             adapter.notifyDataSetChanged()
             portfolio_value_tv.text = text
         }
@@ -83,15 +83,16 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     private fun setupHoldingsValue(coinCapId: String, assetValue: Double): String {
         val dashString = getString(R.string.dash)
-        val portfolioValue = appViewModel.portfolioValue.value ?: return dashString
-        if (portfolioValue == 0.0) {
+        val portfolio = appViewModel.fullPortfolio.value ?: return dashString
+
+        if (portfolio.value == 0.0) {
             return dashString
         }
         val portfolioAsset = appViewModel.portfolioAssets.value?.find {
             it.coinCapId == coinCapId
         } ?: return dashString
 
-        val percent = (portfolioAsset.assetAmount * assetValue) / portfolioValue * 100
+        val percent = (portfolioAsset.assetAmount * assetValue) / portfolio.value * 100
         return "${percent.formatDigits(4)}%"
     }
 

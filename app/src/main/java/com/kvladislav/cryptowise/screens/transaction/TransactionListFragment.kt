@@ -1,6 +1,7 @@
 package com.kvladislav.cryptowise.screens.transaction
 
 import android.graphics.Color
+import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.components.Legend
@@ -16,12 +17,14 @@ import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.enums.TransactionType
 import com.kvladislav.cryptowise.extensions.observe
+import com.kvladislav.cryptowise.models.portfolio.FullPortfolio
 import com.kvladislav.cryptowise.models.transactions.BuySellTransaction
+import com.kvladislav.cryptowise.screens.AppViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_transaction_list.*
 import kotlinx.android.synthetic.main.transaction_rv_item.*
+import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
 import org.koin.androidx.viewmodel.ext.android.getViewModel
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,6 +33,13 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
     private lateinit var adapter: ListDelegationAdapter<List<BuySellTransaction>>
 
     override fun viewModel(): TransactionListViewModel = getViewModel()
+
+    private lateinit var appViewModel: AppViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        appViewModel = getSharedViewModel()
+    }
 
     override fun setupView() {
         setupAdapter()
@@ -48,15 +58,15 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         pie_chart.isDrawHoleEnabled = true
         pie_chart.setHoleColor(Color.TRANSPARENT)
 
-        pie_chart.setTransparentCircleColor(Color.TRANSPARENT)
+        pie_chart.setTransparentCircleColor(Color.RED)
         pie_chart.setTransparentCircleAlpha(110)
 
-        pie_chart.holeRadius = 32f
+        pie_chart.holeRadius = 64f
         pie_chart.transparentCircleRadius = 32f
 
         pie_chart.setDrawCenterText(true)
 
-        pie_chart.rotationAngle = 0f
+        pie_chart.rotationAngle = 90f
         // enable rotation of the chart by touch
         // enable rotation of the chart by touch
         pie_chart.isRotationEnabled = true
@@ -84,31 +94,24 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         pie_chart.setEntryLabelTextSize(12f)
     }
 
-    fun setupChartData() {
+    fun setupChartData(portfolio: FullPortfolio) {
         val entries = mutableListOf<PieEntry>()
-        for (i in 1..3) {
-            entries.add(i - 1, PieEntry(i * 10f))
+        for (asset in portfolio.assets) {
+            val assetPrice = asset.itemPrice * asset.portfolioItem.assetAmount / portfolio.value
+            entries.add(PieEntry(assetPrice.toFloat()))
         }
 
         val pieDataSet = PieDataSet(entries, "Pieeee")
 
         pieDataSet.setDrawIcons(false)
 
-        pieDataSet.sliceSpace = 3f
+//        pieDataSet.sliceSpace = 3f
         pieDataSet.iconsOffset = MPPointF(0f, 40f)
         pieDataSet.selectionShift = 5f
 
         val colors: ArrayList<Int> = ArrayList()
 
-        for (c in ColorTemplate.VORDIPLOM_COLORS) colors.add(c)
-
-        for (c in ColorTemplate.JOYFUL_COLORS) colors.add(c)
-
-        for (c in ColorTemplate.COLORFUL_COLORS) colors.add(c)
-
-        for (c in ColorTemplate.LIBERTY_COLORS) colors.add(c)
-
-        for (c in ColorTemplate.PASTEL_COLORS) colors.add(c)
+        for (c in ColorTemplate.MATERIAL_COLORS) colors.add(c)
 
         colors.add(ColorTemplate.getHoloBlue())
 
@@ -116,6 +119,7 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         val data = PieData(pieDataSet)
         data.setValueFormatter(PercentFormatter(pie_chart))
         data.setValueTextSize(11f)
+        data.setDrawValues(false)
         data.setValueTextColor(Color.WHITE)
         pie_chart.data = data
         pie_chart.highlightValues(null)
@@ -124,10 +128,12 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
 
     override fun setupObservers() {
         viewModel().allTransactions.observe(viewLifecycleOwner) {
-            setupChartData()
-            Timber.d("Triggered observer: $it")
             adapter.items = it
             adapter.notifyDataSetChanged()
+        }
+
+        appViewModel.fullPortfolio.observe(viewLifecycleOwner) {
+            setupChartData(it)
         }
     }
 
