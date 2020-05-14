@@ -9,7 +9,9 @@ import retrofit2.http.Query
 
 interface CoinCapService {
     @GET("v2/assets")
-    suspend fun getAssets(@Query("limit") limit: Int): CCAssetsResponse
+    suspend fun getAssets(
+        @Query("limit") limit: Int
+    ): CCAssetsResponse
 
     @GET("v2/candles")
     suspend fun getCandles(

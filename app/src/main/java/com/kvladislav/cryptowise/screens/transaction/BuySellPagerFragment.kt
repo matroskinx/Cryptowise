@@ -46,7 +46,7 @@ class BuySellPagerFragment : BaseFragment(R.layout.fragment_buy_sell_pager) {
     private fun setupBasicView() {
         val basicData = parseArguments(arguments)
         Picasso.get()
-            .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${basicData.id}.png")
+            .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${basicData.cmcId}.png")
             .into(crypto_iv)
         crypto_tv.text = basicData.symbol
     }

@@ -31,7 +31,7 @@ class BuySellPagerViewModel(private val context: Context, val cmcData: CMCDataMi
             createModel.price,
             createModel.quantity,
             createModel.fee,
-            cmcData.id,
+            cmcData.cmcId,
             cmcData.symbol,
             ""
         )

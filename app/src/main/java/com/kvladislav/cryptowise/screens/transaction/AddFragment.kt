@@ -72,7 +72,7 @@ class AddFragment : Fragment(R.layout.fragment_add) {
         fun build(cmcData: CMCDataMinified): AddFragment {
             return AddFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(CMC_ID_EXTRA, cmcData.id)
+                    putInt(CMC_ID_EXTRA, cmcData.cmcId)
                     putString(CMC_SYMBOL_EXTRA, cmcData.symbol)
                     putString(COINCAP_ID_EXTRA, cmcData.coinCapId)
                 }

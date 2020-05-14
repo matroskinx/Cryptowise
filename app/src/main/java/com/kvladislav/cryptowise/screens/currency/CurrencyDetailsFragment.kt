@@ -7,8 +7,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CandleStickChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.Legend.LegendForm
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.components.YAxis
@@ -38,7 +36,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         day_chip.isChecked = true
 
         Picasso.get()
-            .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${viewModel().cmcData.id}.png")
+            .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${viewModel().cmcData.cmcId}.png")
             .into(crypto_iv)
         val str = "${viewModel().cmcData.symbol}/USDT"
         crypto_tv.text = str
