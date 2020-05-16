@@ -55,7 +55,7 @@ class BuySellPagerFragment : BaseFragment(R.layout.fragment_buy_sell_pager) {
         val operations = arrayOf("Buy", "Sell")
         context?.let {
             val adapter =
-                ArrayAdapter(it, android.R.layout.simple_spinner_dropdown_item, operations)
+                ArrayAdapter(it, R.layout.dropdown_item, operations)
             filled_exposed_dropdown.setAdapter(adapter)
         }
 

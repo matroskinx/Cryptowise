@@ -7,16 +7,19 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CandleStickChart
+import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
+import com.kvladislav.cryptowise.utils.FormatterUtils
 import com.kvladislav.cryptowise.utils.TAUtils
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_currency_details.*
@@ -165,9 +168,9 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         dataSet.axisDependency = YAxis.AxisDependency.LEFT
         dataSet.shadowColor = Color.DKGRAY
         dataSet.shadowWidth = 0.7f
-        dataSet.decreasingColor = Color.RED
-        dataSet.decreasingPaintStyle = Paint.Style.FILL
-        dataSet.increasingColor = Color.rgb(122, 242, 84)
+        dataSet.decreasingColor = ContextCompat.getColor(requireContext(), R.color.red_600)
+        dataSet.decreasingPaintStyle = Paint.Style.FILL_AND_STROKE
+        dataSet.increasingColor = ContextCompat.getColor(requireContext(), R.color.green_600)
         dataSet.increasingPaintStyle = Paint.Style.FILL_AND_STROKE
         dataSet.neutralColor = Color.BLUE
 
@@ -190,7 +193,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             start++
         }
         val dataSet = BarDataSet(values, "Volume (amount of asset traded)")
-        dataSet.color = ContextCompat.getColor(requireContext(), R.color.blue)
+        dataSet.color = ContextCompat.getColor(requireContext(), R.color.bright_blue)
         dataSet.setDrawIcons(false)
         dataSet.setDrawValues(false)
         val data = BarData(dataSet)
@@ -210,8 +213,8 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         }
         val dataSet = LineDataSet(values, "SMA 5")
         context?.run {
-            dataSet.setCircleColor(ContextCompat.getColor(this, R.color.blue))
-            dataSet.color = ContextCompat.getColor(this, R.color.blue)
+            dataSet.setCircleColor(ContextCompat.getColor(this, R.color.bright_blue))
+            dataSet.color = ContextCompat.getColor(this, R.color.bright_blue)
         }
         val lineData = LineData(dataSet)
         lineData.setDrawValues(false)
@@ -222,7 +225,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
     private fun setupChart() {
         val candleStickChart: CandleStickChart = ohlcv_chart
-        candleStickChart.setBackgroundColor(Color.WHITE)
         candleStickChart.description.isEnabled = false
         candleStickChart.setPinchZoom(false)
         candleStickChart.setDrawGridBackground(false)
@@ -232,9 +234,18 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         val leftAxis = candleStickChart.axisLeft
         leftAxis.enableGridDashedLine(10f, 10f, 0f)
+        leftAxis.textColor = Color.WHITE
+
+        leftAxis.valueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                return FormatterUtils.format(value.toLong())
+            }
+        }
 
         val rightAxis = candleStickChart.axisRight
         rightAxis.isEnabled = false
+
+        candleStickChart.legend.textColor = Color.WHITE
     }
 
     private fun setupVolumeChart() {
@@ -256,8 +267,18 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         val leftAxis: YAxis = volume_chart.axisLeft
         leftAxis.enableGridDashedLine(10f, 10f, 0f)
 
+        leftAxis.textColor = Color.WHITE
+
+        leftAxis.valueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                return FormatterUtils.format(value.toLong())
+            }
+        }
+
         val rightAxis: YAxis = volume_chart.axisRight
         rightAxis.isEnabled = false
+
+        volume_chart.legend.textColor = Color.WHITE
     }
 
     private fun setupLineChart() {
@@ -269,7 +290,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         xAxis.setDrawGridLines(false)
         xAxis.isEnabled = false
 
-        line_chart.setBackgroundColor(Color.WHITE)
         line_chart.description.isEnabled = false
         line_chart.setTouchEnabled(true)
         line_chart.setDrawGridBackground(false)
@@ -279,8 +299,16 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         xAxis.enableGridDashedLine(10f, 10f, 0f)
 
-        val yAxis = line_chart.axisLeft
-        yAxis.enableGridDashedLine(10f, 10f, 0f)
+        val leftAxis = line_chart.axisLeft
+        leftAxis.enableGridDashedLine(10f, 10f, 0f)
+        leftAxis.textColor = Color.WHITE
+        line_chart.legend.textColor = Color.WHITE
+
+        leftAxis.valueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                return FormatterUtils.format(value.toLong())
+            }
+        }
     }
 
     companion object {

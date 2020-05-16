@@ -14,7 +14,7 @@ import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.screens.AppViewModel
-import com.kvladislav.cryptowise.screens.transaction.TransactionListFragment
+import com.kvladislav.cryptowise.screens.transaction.PortfolioFragment
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_overview.*
 import kotlinx.android.synthetic.main.currency_rv_item.*
@@ -70,8 +70,8 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
     override fun setupListeners() {
         transactions_btn.setOnClickListener {
             parentFragmentManager.transaction {
-                this.addToBackStack(TransactionListFragment::class.java.canonicalName)
-                this.replace(R.id.fragment_container, TransactionListFragment())
+                this.addToBackStack(PortfolioFragment::class.java.canonicalName)
+                this.replace(R.id.fragment_container, PortfolioFragment())
             }
         }
     }

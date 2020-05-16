@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list) {
+class PortfolioFragment : BaseFragment(R.layout.fragment_transaction_list) {
     private lateinit var adapter: ListDelegationAdapter<List<BuySellTransaction>>
 
     override fun viewModel(): TransactionListViewModel = getViewModel()
