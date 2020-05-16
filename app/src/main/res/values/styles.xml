@@ -23,6 +23,7 @@
         <item name="colorOnSurface">@color/white</item>
         <item name="android:colorBackground">@color/dark_grey</item>
         <item name="colorOnBackground">#C6FF00</item>
+        <item name="colorControlHighlight">#0091EA</item>
     </style>
 
 </resources>
