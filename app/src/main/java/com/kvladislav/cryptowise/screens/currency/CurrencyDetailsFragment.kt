@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
@@ -259,6 +260,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         val leftAxis = candleStickChart.axisLeft
         leftAxis.enableGridDashedLine(10f, 10f, 0f)
         leftAxis.textColor = Color.WHITE
+        leftAxis.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
 
         leftAxis.valueFormatter = object : ValueFormatter() {
             override fun getAxisLabel(value: Float, axis: AxisBase?): String {
@@ -270,6 +272,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         rightAxis.isEnabled = false
 
         candleStickChart.legend.textColor = Color.WHITE
+        candleStickChart.legend.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
     }
 
     private fun setupVolumeChart() {
@@ -290,8 +293,8 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         val leftAxis: YAxis = volume_chart.axisLeft
         leftAxis.enableGridDashedLine(10f, 10f, 0f)
-
         leftAxis.textColor = Color.WHITE
+        leftAxis.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
 
         leftAxis.valueFormatter = object : ValueFormatter() {
             override fun getAxisLabel(value: Float, axis: AxisBase?): String {
@@ -303,6 +306,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         rightAxis.isEnabled = false
 
         volume_chart.legend.textColor = Color.WHITE
+        volume_chart.legend.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
     }
 
     private fun setupLineChart() {
