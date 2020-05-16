@@ -50,6 +50,7 @@ class BuySellPagerViewModel(private val context: Context, val cmcData: CMCDataMi
                     portfolioRepository.addAsset(
                         PortfolioItem(
                             cmcData.coinCapId,
+                            cmcData.cmcId,
                             cmcData.symbol,
                             createModel.quantity
                         )

@@ -9,12 +9,12 @@ import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.extensions.formatDigits
-import com.kvladislav.cryptowise.extensions.formatWithPercent
+import com.kvladislav.cryptowise.extensions.formatWithPercentSigned
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.screens.AppViewModel
-import com.kvladislav.cryptowise.screens.transaction.PortfolioFragment
+import com.kvladislav.cryptowise.screens.portfolio.PortfolioFragment
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_overview.*
 import kotlinx.android.synthetic.main.currency_rv_item.*
@@ -71,7 +71,9 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         transactions_btn.setOnClickListener {
             parentFragmentManager.transaction {
                 this.addToBackStack(PortfolioFragment::class.java.canonicalName)
-                this.replace(R.id.fragment_container, PortfolioFragment())
+                this.replace(R.id.fragment_container,
+                    PortfolioFragment()
+                )
             }
         }
     }
@@ -130,7 +132,7 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
                             else -> price_change_tv.setTextColor(getColor(android.R.color.tab_indicator_text))
                         }
 
-                        price_change_tv.text = it.formatWithPercent(2)
+                        price_change_tv.text = it.formatWithPercentSigned(2)
                     }
 
                     holdings_tv.text = setupHoldingsValue(

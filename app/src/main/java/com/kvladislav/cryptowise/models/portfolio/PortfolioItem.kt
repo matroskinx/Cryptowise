@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class PortfolioItem(
     @PrimaryKey
     val coinCapId: String,
+    val iconId: Int,
     val symbol: String,
     var assetAmount: Double
 )

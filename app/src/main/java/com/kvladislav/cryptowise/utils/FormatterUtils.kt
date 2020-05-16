@@ -1,5 +1,6 @@
 package com.kvladislav.cryptowise.utils
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -28,6 +29,11 @@ class FormatterUtils {
             val hasDecimal =
                 truncated < 100 && truncated / 10.0 != (truncated / 10).toDouble()
             return if (hasDecimal) (truncated / 10.0).toString() + suffix else (truncated / 10).toString() + suffix
+        }
+
+        fun formatDate(timestamp: Long): String {
+            val fmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            return fmt.format(timestamp)
         }
 
     }

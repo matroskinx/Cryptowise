@@ -12,7 +12,8 @@ import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsViewModel
 import com.kvladislav.cryptowise.screens.overview.OverviewViewModel
 import com.kvladislav.cryptowise.screens.transaction.BuySellPagerViewModel
-import com.kvladislav.cryptowise.screens.transaction.TransactionListViewModel
+import com.kvladislav.cryptowise.screens.portfolio.PortfolioViewModel
+import com.kvladislav.cryptowise.screens.transaction_management.TransactionListViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.experimental.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -20,6 +21,7 @@ import org.koin.dsl.module
 
 val appModules = module {
     viewModel<OverviewViewModel>()
+    viewModel<PortfolioViewModel>()
     viewModel<TransactionListViewModel>()
     viewModel { (data: CMCDataMinified) -> BuySellPagerViewModel(get(), data) }
     viewModel { (data: CMCDataMinified) -> CurrencyDetailsViewModel(get(), data) }
