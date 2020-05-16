@@ -122,6 +122,15 @@
             android:text="@string/add_transaction" />
 
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ta_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/show_technical_analysis" />
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

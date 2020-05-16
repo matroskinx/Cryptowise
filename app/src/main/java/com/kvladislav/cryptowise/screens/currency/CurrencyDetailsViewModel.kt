@@ -6,13 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.kvladislav.cryptowise.DataStorage
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
+import com.kvladislav.cryptowise.enums.TAType
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.coin_cap.ExchangeItem
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
-import com.kvladislav.cryptowise.models.coin_cap.candles.CandlesResponse
 import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
+import com.kvladislav.cryptowise.screens.ta.TAMovingAverageFragment
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
 import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
@@ -20,8 +21,6 @@ import org.koin.core.inject
 import timber.log.Timber
 import java.lang.Exception
 import java.lang.IllegalStateException
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.HashMap
 
 class CurrencyDetailsViewModel(
@@ -161,6 +160,15 @@ class CurrencyDetailsViewModel(
     fun onIntervalChange(interval: TimeInterval) {
         timeInterval.postValue(interval)
         postCorrespondingData(interval)
+    }
+
+    fun onTATap(taType: TAType) {
+        withActivity {
+            it.supportFragmentManager.transaction {
+                this.addToBackStack(TAMovingAverageFragment::class.java.canonicalName)
+                this.replace(R.id.fragment_container, TAMovingAverageFragment())
+            }
+        }
     }
 
     enum class TimeInterval {

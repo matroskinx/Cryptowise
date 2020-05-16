@@ -13,8 +13,10 @@ import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
+import com.kvladislav.cryptowise.enums.TAType
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CombinedAssetModel
@@ -62,6 +64,28 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
     override fun setupListeners() {
         add_tr_button.setOnClickListener { viewModel().onAddTransactionTap() }
+
+        ta_button.setOnClickListener {
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Pick TA")
+                .setItems(
+                    TAType.values().map {
+                        it.friendlyName
+                    }.toTypedArray()
+                ) { _, which ->
+                    val taType = when (which) {
+                        TAType.SIMPLE_MOVING_AVERAGE.position -> TAType.SIMPLE_MOVING_AVERAGE
+                        TAType.EXP_MOVING_AVERAGE.position -> TAType.EXP_MOVING_AVERAGE
+                        TAType.OSCILLATOR.position -> TAType.OSCILLATOR
+                        else -> throw IllegalArgumentException("There is no dialog value for $which")
+                    }
+
+                    viewModel().onTATap(taType)
+
+                }.show()
+        }
+
         chip_group.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.day_chip -> CurrencyDetailsViewModel.TimeInterval.DAY
