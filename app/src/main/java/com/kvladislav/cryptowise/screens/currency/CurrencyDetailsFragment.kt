@@ -18,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.enums.TAType
+import com.kvladislav.cryptowise.enums.TimeInterval
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CombinedAssetModel
@@ -67,7 +68,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         add_tr_button.setOnClickListener { viewModel().onAddTransactionTap() }
 
         ta_button.setOnClickListener {
-
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Pick TA")
                 .setItems(
@@ -89,12 +89,12 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         chip_group.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
-                R.id.day_chip -> CurrencyDetailsViewModel.TimeInterval.DAY
-                R.id.week_chip -> CurrencyDetailsViewModel.TimeInterval.WEEK
-                R.id.month_chip -> CurrencyDetailsViewModel.TimeInterval.MONTH
-                R.id.month_3_chip -> CurrencyDetailsViewModel.TimeInterval.MONTH_3
-                R.id.month_6_chip -> CurrencyDetailsViewModel.TimeInterval.MONTH_6
-                R.id.year_chip -> CurrencyDetailsViewModel.TimeInterval.YEAR
+                R.id.day_chip -> TimeInterval.DAY
+                R.id.week_chip -> TimeInterval.WEEK
+                R.id.month_chip -> TimeInterval.MONTH
+                R.id.month_3_chip -> TimeInterval.MONTH_3
+                R.id.month_6_chip -> TimeInterval.MONTH_6
+                R.id.year_chip -> TimeInterval.YEAR
                 else -> throw IllegalArgumentException("Unable to find enum value for button $checkedId")
             }.run {
                 viewModel().onIntervalChange(this)
@@ -106,12 +106,11 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         viewModel().chartData.observe(viewLifecycleOwner) { candles ->
             fillChartWithData(candles)
             fillVolumeChartWithData(candles)
-            //////////////
             viewModel().timeInterval.value?.run {
                 val allCandles = viewModel().getCurrentTimeFrameCandles()
-                val dataPointCount = CurrencyDetailsViewModel.TimeInterval.getCandleCount(this)
+                val dataPointCount = TimeInterval.getCandleCount(this)
                 buildSMA(allCandles, dataPointCount)
-                buildEMA(allCandles, dataPointCount)
+                buildEMA(allCandles)
             }
         }
     }
@@ -133,7 +132,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         }
     }
 
-    private fun buildEMA(allCandles: List<CandleItem>, dataPointCount: Int) {
+    private fun buildEMA(allCandles: List<CandleItem>) {
         val periods = mutableListOf(10, 20)
         val views = mutableListOf(ema_12, ema_26)
 
@@ -272,7 +271,8 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         rightAxis.isEnabled = false
 
         candleStickChart.legend.textColor = Color.WHITE
-        candleStickChart.legend.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
+        candleStickChart.legend.typeface =
+            ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
     }
 
     private fun setupVolumeChart() {

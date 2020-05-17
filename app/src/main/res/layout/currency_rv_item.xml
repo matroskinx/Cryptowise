@@ -19,7 +19,7 @@
         android:layout_width="64dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:fontFamily="@font/roboto_slab"
+        android:fontFamily="@font/roboto_slab_bold"
         android:maxLines="1"
         android:textSize="18sp"
         tools:text="BTC" />

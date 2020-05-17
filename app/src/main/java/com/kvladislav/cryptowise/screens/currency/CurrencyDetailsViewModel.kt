@@ -7,6 +7,7 @@ import com.kvladislav.cryptowise.DataStorage
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.enums.TAType
+import com.kvladislav.cryptowise.enums.TimeInterval
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.coin_cap.ExchangeItem
@@ -15,6 +16,7 @@ import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.screens.ta.TAMovingAverageFragment
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -32,18 +34,17 @@ class CurrencyDetailsViewModel(
     }
 
     private val coinCapRepository: CoinCapRepository by inject()
-    private val dataStorage: DataStorage by inject()
     val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
 
     // data only for chart display
     val chartData: MutableLiveData<List<CandleItem>> = MutableLiveData()
 
-    val hourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
-    val eightHourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
-    val dayData: MutableLiveData<List<CandleItem>> = MutableLiveData();
+    private val hourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
+    private val eightHourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
+    private val dayData: MutableLiveData<List<CandleItem>> = MutableLiveData();
 
     fun requestCandles() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val exchangeId = loadDataFromBestMarket()
                     ?: throw IllegalStateException("Was unable to find market")
@@ -169,28 +170,5 @@ class CurrencyDetailsViewModel(
                 this.replace(R.id.fragment_container, TAMovingAverageFragment())
             }
         }
-    }
-
-    enum class TimeInterval {
-        DAY, WEEK, MONTH, MONTH_3, MONTH_6, YEAR;
-
-        companion object {
-            fun getCandleCount(interval: TimeInterval): Int {
-                return when (interval) {
-                    DAY -> 24
-                    WEEK -> 21
-                    MONTH -> 30
-                    MONTH_3 -> 90
-                    MONTH_6 -> 180
-                    YEAR -> 365
-                }
-            }
-        }
-    }
-
-    companion object {
-        const val DAY_INTERVAL: Long = 1000 * 60 * 60 * 24
-        const val WEEK_INTERVAL: Long = DAY_INTERVAL * 7
-        const val MONTH_INTERVAL: Long = DAY_INTERVAL * 30
     }
 }
