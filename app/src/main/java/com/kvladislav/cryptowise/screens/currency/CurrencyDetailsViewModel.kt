@@ -2,28 +2,23 @@ package com.kvladislav.cryptowise.screens.currency
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.kvladislav.cryptowise.DataStorage
+import androidx.lifecycle.liveData
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.enums.TAType
 import com.kvladislav.cryptowise.enums.TimeInterval
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CMCDataMinified
-import com.kvladislav.cryptowise.models.coin_cap.ExchangeItem
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
-import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.screens.ta.TAMovingAverageFragment
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
 import java.lang.Exception
 import java.lang.IllegalStateException
-import kotlin.collections.HashMap
 
 class CurrencyDetailsViewModel(
     private val context: Context,
@@ -39,42 +34,46 @@ class CurrencyDetailsViewModel(
     // data only for chart display
     val chartData: MutableLiveData<List<CandleItem>> = MutableLiveData()
 
-    private val hourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
-    private val eightHourData: MutableLiveData<List<CandleItem>> = MutableLiveData();
-    private val dayData: MutableLiveData<List<CandleItem>> = MutableLiveData();
+    private val hourData: MutableLiveData<List<CandleItem>> = MutableLiveData()
+    private val eightHourData: MutableLiveData<List<CandleItem>> = MutableLiveData()
+    private val dayData: MutableLiveData<List<CandleItem>> = MutableLiveData()
 
-    fun requestCandles() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val exchangeId = loadDataFromBestMarket()
-                    ?: throw IllegalStateException("Was unable to find market")
-                Timber.d("From market: $exchangeId")
+    val isLoaded = liveData(Dispatchers.IO) {
+        emit(false)
+        requestCandles()
+        emit(true)
+    }
 
-                val hourCandles = coinCapRepository.getCandles(
-                    exchangeId = exchangeId,
-                    baseId = cmcData.coinCapId,
-                    interval = "h1"
-                )
-                hourData.postValue(hourCandles.data ?: mutableListOf())
-                val eightHourCandles = coinCapRepository.getCandles(
-                    exchangeId = exchangeId,
-                    baseId = cmcData.coinCapId,
-                    interval = "h8"
-                )
-                eightHourData.postValue(eightHourCandles.data ?: mutableListOf())
-                val dayCandles = coinCapRepository.getCandles(
-                    exchangeId = exchangeId,
-                    baseId = cmcData.coinCapId,
-                    interval = "d1"
-                )
-                dayData.postValue(dayCandles.data ?: mutableListOf())
+    private suspend fun requestCandles() {
+        try {
+            val exchangeId = coinCapRepository.getBestRankedMarketForCoin(cmcData.coinCapId)
+                ?: throw IllegalStateException("Was unable to find market")
+            Timber.d("From market: $exchangeId")
 
-                timeInterval.value?.run {
-                    postCorrespondingData(interval = this)
-                }
-            } catch (e: Exception) {
-                Timber.e(e)
+            val hourCandles = coinCapRepository.getCandles(
+                exchangeId = exchangeId,
+                baseId = cmcData.coinCapId,
+                interval = "h1"
+            )
+            hourData.postValue(hourCandles.data ?: mutableListOf())
+            val eightHourCandles = coinCapRepository.getCandles(
+                exchangeId = exchangeId,
+                baseId = cmcData.coinCapId,
+                interval = "h8"
+            )
+            eightHourData.postValue(eightHourCandles.data ?: mutableListOf())
+            val dayCandles = coinCapRepository.getCandles(
+                exchangeId = exchangeId,
+                baseId = cmcData.coinCapId,
+                interval = "d1"
+            )
+            dayData.postValue(dayCandles.data ?: mutableListOf())
+
+            timeInterval.value?.run {
+                postCorrespondingData(interval = this)
             }
+        } catch (e: Exception) {
+            Timber.e(e)
         }
     }
 
@@ -102,51 +101,6 @@ class CurrencyDetailsViewModel(
             TimeInterval.MONTH, TimeInterval.MONTH_3, TimeInterval.MONTH_6, TimeInterval.YEAR ->
                 chartData.postValue(dayData.value?.takeLast(count) ?: mutableListOf())
         }
-    }
-
-    private suspend fun loadDataFromBestMarket(): String? {
-        val allMarkets = coinCapRepository.getExchanges()
-        val coinMarkets: MarketsResponse =
-            coinCapRepository.getTetherMarkets(cmcData.coinCapId).run {
-                if (this.data == null || this.data.count() == 0) {
-                    return@run coinCapRepository.getAllMarkets(cmcData.coinCapId)
-                } else {
-                    return@run this
-                }
-            }
-
-        val marketRankMap = createMarketRankMap(allMarkets.data!!)
-        var bestMarket: String? = null
-        var currentRank = -1
-        val marketNames: Set<String>? = coinMarkets.data?.map {
-            it.exchangeId ?: ""
-        }?.toSet()
-
-        val intersection = marketNames?.intersect(DataStorage.TRUSTWORTHY_PROVIDERS)
-
-        Timber.d("All markets: $marketRankMap")
-        Timber.d("Available markets names: $marketNames")
-        Timber.d("Intersection: $intersection")
-
-        intersection?.forEach { market ->
-            if (currentRank == -1 || currentRank > marketRankMap[market]!!) {
-                currentRank = marketRankMap[market]!!
-                bestMarket = market
-            }
-        }
-
-        Timber.d("Picked best market: $bestMarket")
-
-        return bestMarket
-    }
-
-    private fun createMarketRankMap(items: List<ExchangeItem>): HashMap<String, Int> {
-        val map = HashMap<String, Int>()
-        items.forEach {
-            if (it.exchangeId != null && it.rank != null)
-                map[it.exchangeId] = it.rank.toInt()
-        }
-        return map;
     }
 
     fun onAddTransactionTap() {

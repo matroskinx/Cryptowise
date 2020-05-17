@@ -49,11 +49,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         crypto_tv.text = str
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel().requestCandles()
-    }
-
     private fun parseArguments(bundle: Bundle?): CMCDataMinified {
         return bundle?.run {
             CMCDataMinified(
@@ -111,6 +106,16 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
                 val dataPointCount = TimeInterval.getCandleCount(this)
                 buildSMA(allCandles, dataPointCount)
                 buildEMA(allCandles)
+            }
+        }
+
+        viewModel().isLoaded.observe(viewLifecycleOwner) { isLoaded ->
+            if (isLoaded) {
+                main_ll.visibility = View.VISIBLE
+                loading_layout.visibility = View.GONE
+            } else {
+                main_ll.visibility = View.GONE
+                loading_layout.visibility = View.VISIBLE
             }
         }
     }

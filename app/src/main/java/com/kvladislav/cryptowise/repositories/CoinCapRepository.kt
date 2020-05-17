@@ -1,6 +1,8 @@
 package com.kvladislav.cryptowise.repositories
 
 import com.google.gson.GsonBuilder
+import com.kvladislav.cryptowise.DataStorage
+import com.kvladislav.cryptowise.models.coin_cap.ExchangeItem
 import com.kvladislav.cryptowise.models.coin_cap.ExchangesResponse
 import com.kvladislav.cryptowise.models.coin_cap.assets.CCAssetsResponse
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandlesResponse
@@ -8,6 +10,7 @@ import com.kvladislav.cryptowise.models.coin_cap.markets.MarketsResponse
 import com.kvladislav.cryptowise.services.CoinCapService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
 
 class CoinCapRepository {
 
@@ -66,6 +69,52 @@ class CoinCapRepository {
     companion object {
         const val DEFAULT_QUOTE_ID = "tether"
         const val CC_BASE_URL = "https://api.coincap.io/"
+    }
+
+    /// return best market id for given coin
+    suspend fun getBestRankedMarketForCoin(coinCapCoinId: String): String? {
+        val allMarkets = getExchanges()
+        val coinMarkets: MarketsResponse =
+            getTetherMarkets(coinCapCoinId).run {
+                if (this.data == null || this.data.count() == 0) {
+                    return@run getAllMarkets(coinCapCoinId)
+                } else {
+                    return@run this
+                }
+            }
+
+        val marketRankMap = createMarketRankMap(allMarkets.data!!)
+        var bestMarket: String? = null
+        var currentRank = -1
+        val marketNames: Set<String>? = coinMarkets.data?.map {
+            it.exchangeId ?: ""
+        }?.toSet()
+
+        val intersection = marketNames?.intersect(DataStorage.TRUSTWORTHY_PROVIDERS)
+
+        Timber.d("All markets: $marketRankMap")
+        Timber.d("Available markets names: $marketNames")
+        Timber.d("Intersection: $intersection")
+
+        intersection?.forEach { market ->
+            if (currentRank == -1 || currentRank > marketRankMap[market]!!) {
+                currentRank = marketRankMap[market]!!
+                bestMarket = market
+            }
+        }
+
+        Timber.d("Picked best market: $bestMarket")
+
+        return bestMarket
+    }
+
+    private fun createMarketRankMap(items: List<ExchangeItem>): HashMap<String, Int> {
+        val map = HashMap<String, Int>()
+        items.forEach {
+            if (it.exchangeId != null && it.rank != null)
+                map[it.exchangeId] = it.rank.toInt()
+        }
+        return map;
     }
 
 }
