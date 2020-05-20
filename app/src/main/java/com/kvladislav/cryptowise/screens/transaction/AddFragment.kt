@@ -28,22 +28,22 @@ class AddFragment : Fragment(R.layout.fragment_add) {
     }
 
     private fun setupListeners() {
-        transaction_tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-                Timber.d("Tab reselected: ${tab?.position}")
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                Timber.d("Tab unselected: ${tab?.position}")
-            }
-
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                tab?.let {
-                    transaction_viewpager.currentItem = it.position
-                }
-                Timber.d("Tab selected: ${tab?.position}")
-            }
-        })
+//        transaction_tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+//            override fun onTabReselected(tab: TabLayout.Tab?) {
+//                Timber.d("Tab reselected: ${tab?.position}")
+//            }
+//
+//            override fun onTabUnselected(tab: TabLayout.Tab?) {
+//                Timber.d("Tab unselected: ${tab?.position}")
+//            }
+//
+//            override fun onTabSelected(tab: TabLayout.Tab?) {
+//                tab?.let {
+//                    transaction_viewpager.currentItem = it.position
+//                }
+//                Timber.d("Tab selected: ${tab?.position}")
+//            }
+//        })
     }
 
     inner class TransactionAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {

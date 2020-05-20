@@ -2,6 +2,7 @@
 
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -24,13 +25,11 @@
             android:layout_height="0dp"
             android:layout_weight="5" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/transactions_btn"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/transactions" />
+            style="@style/ActionMaterialButton"
+            android:text="@string/transactions"
+            app:cornerRadius="24dp" />
 
     </LinearLayout>
 
