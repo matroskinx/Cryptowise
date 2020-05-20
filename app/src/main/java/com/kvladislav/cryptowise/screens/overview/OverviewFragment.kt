@@ -114,7 +114,7 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
                     Picasso.get()
                         .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${this.item.cmcMapItem.id}.png")
                         .into(logo)
-                    price_tv.text = this.item.coinCapAssetItem.priceUsd
+                    price_tv.text = this.item.coinCapAssetItem.priceUsd.toString()
 
                     if (viewModel().favouriteList.value?.contains(this.item.cmcMapItem.id) == true) {
                         favourite_button.setImageResource(R.drawable.ic_favorite)

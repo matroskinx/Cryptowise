@@ -5,20 +5,20 @@ import com.google.gson.annotations.SerializedName
 data class CandleItem(
 
     @field:SerializedName("volume")
-    val volume: String? = null,
+    val volume: Double? = null,
 
     @field:SerializedName("high")
-    val high: String? = null,
+    val high: Double? = null,
 
     @field:SerializedName("period")
-    val period: Long? = null,
+    val period: Double? = null,
 
     @field:SerializedName("low")
-    val low: String? = null,
+    val low: Double? = null,
 
     @field:SerializedName("close")
-    val close: String? = null,
+    val close: Double? = null,
 
     @field:SerializedName("open")
-    val open: String? = null
+    val open: Double? = null
 )

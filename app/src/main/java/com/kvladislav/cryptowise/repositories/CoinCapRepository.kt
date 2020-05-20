@@ -86,6 +86,7 @@ class CoinCapRepository {
         val marketRankMap = createMarketRankMap(allMarkets.data!!)
         var bestMarket: String? = null
         var currentRank = -1
+        //marketNames = getNameSet(coinMarkets)
         val marketNames: Set<String>? = coinMarkets.data?.map {
             it.exchangeId ?: ""
         }?.toSet()

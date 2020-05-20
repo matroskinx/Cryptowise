@@ -25,7 +25,6 @@ class AppViewModel : BaseViewModel(), KoinComponent {
     val fullPortfolio: MutableLiveData<FullPortfolio> = MutableLiveData()
 
     val portfolioAssets = liveData(Dispatchers.IO) {
-        Timber.d("BLOOOOCK")
         emitSource(portfolioRepository.allAssets)
     }
 
@@ -33,7 +32,6 @@ class AppViewModel : BaseViewModel(), KoinComponent {
         val assets = coinCapRepository.getAssets()
         val cmcMap = coinMarketCapRepo.getIDMap()
         val coinIds = getCoinIdsFromTrustworthyProviders()
-//        dataStorage.setTrustworthyCoins(coinIds)
         val cmcMapData = cmcMap.data?.sortedBy { it.rank }
         cmcMapData?.let { cmc ->
             assets.data?.let { assets ->
