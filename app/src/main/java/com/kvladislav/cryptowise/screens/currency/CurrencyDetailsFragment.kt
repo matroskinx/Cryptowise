@@ -44,9 +44,9 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         }
 
     override fun setupView() {
-        setupChart()
+        setupOHLCChart()
         setupVolumeChart()
-        setupLineChart()
+        setupSMAChart()
         day_chip.isChecked = true
 
         Picasso.get()
@@ -83,9 +83,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
                         TAType.OSCILLATOR.position -> TAType.OSCILLATOR
                         else -> throw IllegalArgumentException("There is no dialog value for $which")
                     }
-
                     viewModel().onTATap(taType)
-
                 }.show()
         }
 
@@ -106,7 +104,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
     override fun setupObservers() {
         viewModel().chartData.observe(viewLifecycleOwner) { candles ->
-            fillChartWithData(candles)
+            fillOHLCChartWithData(candles)
             fillVolumeChartWithData(candles)
             viewModel().timeInterval.value?.run {
                 val allCandles = viewModel().getCurrentTimeFrameCandles()
@@ -138,7 +136,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
             val periodCandles = allCandles.takeLast(dataPointCount + periods[i] - 1)
             val sma = TAUtils.simpleMovingAverage(periodCandles, periods[i])
             if (i == fillPeriodIdx) {
-                displaySimpleMovingAverage(sma)
+                fillSMAChartWithData(sma)
             }
             views[i].text = sma.last().toString()
         }
@@ -151,7 +149,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         for (i in 0 until periods.count()) {
             val emas = calculateEMA(allCandles, periods[i])
             views[i].text = emas.last().toString()
-            displaySimpleMovingAverage(emas)
+            fillSMAChartWithData(emas)
         }
     }
 
@@ -175,7 +173,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
     }
 
 
-    private fun fillChartWithData(items: List<CandleItem>) {
+    private fun fillOHLCChartWithData(items: List<CandleItem>) {
         Timber.d("Candles amount: ${items.count()}")
         if (items.count() == 0) {
             Toast.makeText(context, "There is no candle data for this market!", Toast.LENGTH_LONG)
@@ -239,7 +237,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         volume_chart.invalidate()
     }
 
-    private fun displaySimpleMovingAverage(sma: List<Float>) {
+    private fun fillSMAChartWithData(sma: List<Float>) {
         Timber.d("Displaying on chart: ${sma.count()}")
         val values: ArrayList<Entry> = ArrayList()
         var start = 1f
@@ -259,7 +257,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         line_chart.invalidate()
     }
 
-    private fun setupChart() {
+    private fun setupOHLCChart() {
         val candleStickChart: CandleStickChart = ohlcv_chart
         candleStickChart.description.isEnabled = false
         candleStickChart.setPinchZoom(false)
@@ -321,7 +319,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         volume_chart.legend.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
     }
 
-    private fun setupLineChart() {
+    private fun setupSMAChart() {
         val rightAxis = line_chart.axisRight
         rightAxis.setDrawGridLines(false)
         rightAxis.isEnabled = false
