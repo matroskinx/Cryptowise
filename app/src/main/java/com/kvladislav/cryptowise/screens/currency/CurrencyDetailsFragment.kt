@@ -46,7 +46,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
     override fun setupView() {
         setupOHLCChart()
         setupVolumeChart()
-        setupSMAChart()
         day_chip.isChecked = true
 
         Picasso.get()
@@ -106,14 +105,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         viewModel().chartData.observe(viewLifecycleOwner) { candles ->
             fillOHLCChartWithData(candles)
             fillVolumeChartWithData(candles)
-            viewModel().timeInterval.value?.run {
-                val allCandles = viewModel().getCurrentTimeFrameCandles()
-                val dataPointCount = TimeInterval.getCandleCount(this)
-                buildSMA(allCandles, dataPointCount)
-                buildEMA(allCandles)
-            }
         }
-
         viewModel().isLoaded.observe(viewLifecycleOwner) { isLoaded ->
             if (isLoaded) {
                 main_ll.visibility = View.VISIBLE
@@ -125,23 +117,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         }
     }
 
-
-    private fun buildSMA(allCandles: List<CandleItem>, dataPointCount: Int) {
-        val periods = mutableListOf(5, 10, 20, 30, 50, 100)
-        val views = mutableListOf(sma_5, sma_10, sma_20, sma_30, sma_50, sma_100)
-
-        val fillPeriodIdx = 0
-
-        for (i in 0 until periods.count()) {
-            val periodCandles = allCandles.takeLast(dataPointCount + periods[i] - 1)
-            val sma = TAUtils.simpleMovingAverage(periodCandles, periods[i])
-            if (i == fillPeriodIdx) {
-                fillSMAChartWithData(sma)
-            }
-            views[i].text = sma.last().toString()
-        }
-    }
-
     private fun buildEMA(allCandles: List<CandleItem>) {
         val periods = mutableListOf(10, 20)
         val views = mutableListOf(ema_12, ema_26)
@@ -149,7 +124,8 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         for (i in 0 until periods.count()) {
             val emas = calculateEMA(allCandles, periods[i])
             views[i].text = emas.last().toString()
-            fillSMAChartWithData(emas)
+            // TODO
+//            fillSMAChartWithData(emas)
         }
     }
 
@@ -237,26 +213,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         volume_chart.invalidate()
     }
 
-    private fun fillSMAChartWithData(sma: List<Float>) {
-        Timber.d("Displaying on chart: ${sma.count()}")
-        val values: ArrayList<Entry> = ArrayList()
-        var start = 1f
-        for (v in sma) {
-            values.add(Entry(start, v))
-            start++
-        }
-        val dataSet = LineDataSet(values, "SMA 5")
-        context?.run {
-            dataSet.setCircleColor(ContextCompat.getColor(this, R.color.bright_blue))
-            dataSet.color = ContextCompat.getColor(this, R.color.bright_blue)
-        }
-        val lineData = LineData(dataSet)
-        lineData.setDrawValues(false)
-
-        line_chart.data = lineData
-        line_chart.invalidate()
-    }
-
     private fun setupOHLCChart() {
         val candleStickChart: CandleStickChart = ohlcv_chart
         candleStickChart.description.isEnabled = false
@@ -317,36 +273,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         volume_chart.legend.textColor = Color.WHITE
         volume_chart.legend.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
-    }
-
-    private fun setupSMAChart() {
-        val rightAxis = line_chart.axisRight
-        rightAxis.setDrawGridLines(false)
-        rightAxis.isEnabled = false
-
-        val xAxis = line_chart.xAxis
-        xAxis.setDrawGridLines(false)
-        xAxis.isEnabled = false
-
-        line_chart.description.isEnabled = false
-        line_chart.setTouchEnabled(true)
-        line_chart.setDrawGridBackground(false)
-        line_chart.isDragEnabled = true
-        line_chart.setScaleEnabled(true)
-        line_chart.setPinchZoom(true)
-
-        xAxis.enableGridDashedLine(10f, 10f, 0f)
-
-        val leftAxis = line_chart.axisLeft
-        leftAxis.enableGridDashedLine(10f, 10f, 0f)
-        leftAxis.textColor = Color.WHITE
-        line_chart.legend.textColor = Color.WHITE
-
-        leftAxis.valueFormatter = object : ValueFormatter() {
-            override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                return FormatterUtils.format(value.toLong())
-            }
-        }
     }
 
     override fun onDestroyView() {

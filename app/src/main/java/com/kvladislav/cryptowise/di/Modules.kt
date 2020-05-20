@@ -23,7 +23,7 @@ import org.koin.dsl.module
 val appModules = module {
     viewModel<OverviewViewModel>()
     viewModel<PortfolioViewModel>()
-    viewModel<TAMovingAverageViewModel>()
+    viewModel { (appVM: AppViewModel) -> TAMovingAverageViewModel(get(), appVM) }
     viewModel<TransactionListViewModel>()
     viewModel { (data: CMCDataMinified) -> BuySellPagerViewModel(get(), data) }
     viewModel { (appVM: AppViewModel, data: CMCDataMinified) ->

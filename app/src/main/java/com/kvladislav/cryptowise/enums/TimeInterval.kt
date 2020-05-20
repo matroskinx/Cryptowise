@@ -3,6 +3,9 @@ package com.kvladislav.cryptowise.enums
 enum class TimeInterval {
     DAY, WEEK, MONTH, MONTH_3, MONTH_6, YEAR;
 
+    val dataPointCount: Int
+        get() = getCandleCount(this)
+
     companion object {
         fun getCandleCount(interval: TimeInterval): Int {
             return when (interval) {

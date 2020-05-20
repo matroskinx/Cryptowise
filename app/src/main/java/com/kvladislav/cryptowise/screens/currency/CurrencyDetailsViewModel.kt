@@ -82,19 +82,6 @@ class CurrencyDetailsViewModel(
         }
     }
 
-    fun getCurrentTimeFrameCandles(): List<CandleItem> {
-        return timeInterval.value?.run {
-            return@run when (this) {
-                TimeInterval.DAY -> appViewModel.candlePeriodicData.value?.dataH1
-                TimeInterval.WEEK -> appViewModel.candlePeriodicData.value?.dataH8
-                TimeInterval.MONTH,
-                TimeInterval.MONTH_3,
-                TimeInterval.MONTH_6,
-                TimeInterval.YEAR -> appViewModel.candlePeriodicData.value?.dataD1
-            }
-        } ?: mutableListOf()
-    }
-
     private fun postCorrespondingData(interval: TimeInterval) {
         val count = TimeInterval.getCandleCount(interval)
         when (interval) {

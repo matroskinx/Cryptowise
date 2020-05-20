@@ -33,4 +33,9 @@
     <string name="dash">-</string>
     <string name="show_technical_analysis">Show technical analysis</string>
     <string name="loading_text">Please wait while we are loading all the necessary data!</string>
+    <string name="help_me_i_m_lost">Help me. I\'m lost!</string>
+    <string name="sma_header">Simple moving average</string>
+    <string name="sma_desc">Simple Moving Average is an unweighted Moving Average. This means that each day in the data set has equal importance and is weighted equally. As each new day ends, the oldest data point is dropped and the newest one is added to the beginning.</string>
+    <string name="pick_interval_between_points">Pick interval between points:</string>
+    <string name="pick_sma_type">Pick SMA type:</string>
 </resources>

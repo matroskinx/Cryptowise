@@ -19,12 +19,23 @@
         <item name="colorOnSecondary">#C51162</item>
         <item name="colorError">#F44336</item>
         <item name="colorOnError">#FFD600</item>
-        <item name="colorSurface">#2979FF</item>
+        <item name="colorSurface">#616161</item>
+<!--        <item name="colorSurface">#2979FF</item>-->
         <item name="colorOnSurface">@color/white</item>
         <item name="android:colorBackground">@color/dark_grey</item>
         <item name="colorOnBackground">#C6FF00</item>
         <item name="colorControlHighlight">#0091EA</item>
         <item name="fontFamily">@font/roboto_slab</item>
+    </style>
+
+    <style name="ActionMaterialButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 
 </resources>
