@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.kvladislav.cryptowise.DataStorage
 import com.kvladislav.cryptowise.base.BaseViewModel
+import com.kvladislav.cryptowise.models.CandlePeriodicData
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.cmc_map.CMCMapItem
 import com.kvladislav.cryptowise.models.coin_cap.assets.CoinCapAssetItem
@@ -28,7 +29,7 @@ class AppViewModel : BaseViewModel(), KoinComponent {
         emitSource(portfolioRepository.allAssets)
     }
 
-    val currencyListings = liveData(Dispatchers.IO) {
+    val assetListings = liveData(Dispatchers.IO) {
         val assets = coinCapRepository.getAssets()
         val cmcMap = coinMarketCapRepo.getIDMap()
         val coinIds = getCoinIdsFromTrustworthyProviders()
@@ -39,6 +40,8 @@ class AppViewModel : BaseViewModel(), KoinComponent {
             }
         }
     }
+
+    val candlePeriodicData = MutableLiveData<CandlePeriodicData>()
 
     private suspend fun getCoinIdsFromTrustworthyProviders(): HashSet<String> {
         val coinIds = hashSetOf<String>()
@@ -73,7 +76,7 @@ class AppViewModel : BaseViewModel(), KoinComponent {
 
     fun tryUpdatePortfolio() {
         Timber.d("Setting up portfolio value")
-        val listings = currencyListings.value ?: return
+        val listings = assetListings.value ?: return
         val portfolioAssets = portfolioAssets.value ?: return
         Timber.d("Track is ready!")
 

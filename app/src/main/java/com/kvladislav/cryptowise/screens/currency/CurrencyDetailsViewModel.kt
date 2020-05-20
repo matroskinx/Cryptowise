@@ -9,8 +9,10 @@ import com.kvladislav.cryptowise.enums.TAType
 import com.kvladislav.cryptowise.enums.TimeInterval
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CMCDataMinified
+import com.kvladislav.cryptowise.models.CandlePeriodicData
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
+import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.screens.ta.TAMovingAverageFragment
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
 import kotlinx.coroutines.Dispatchers
@@ -22,10 +24,11 @@ import java.lang.IllegalStateException
 
 class CurrencyDetailsViewModel(
     private val context: Context,
+    private val appViewModel: AppViewModel,
     val cmcData: CMCDataMinified
 ) : BaseViewModel(), KoinComponent {
     init {
-        Timber.d("init: $cmcData")
+        Timber.d("init: $cmcData sharedVM: $appViewModel")
     }
 
     private val coinCapRepository: CoinCapRepository by inject()
@@ -33,10 +36,6 @@ class CurrencyDetailsViewModel(
 
     // data only for chart display
     val chartData: MutableLiveData<List<CandleItem>> = MutableLiveData()
-
-    private val hourData: MutableLiveData<List<CandleItem>> = MutableLiveData()
-    private val eightHourData: MutableLiveData<List<CandleItem>> = MutableLiveData()
-    private val dayData: MutableLiveData<List<CandleItem>> = MutableLiveData()
 
     val isLoaded = liveData(Dispatchers.IO) {
         emit(false)
@@ -54,20 +53,26 @@ class CurrencyDetailsViewModel(
                 exchangeId = exchangeId,
                 baseId = cmcData.coinCapId,
                 interval = "h1"
-            )
-            hourData.postValue(hourCandles.data ?: mutableListOf())
+            ).data ?: mutableListOf()
             val eightHourCandles = coinCapRepository.getCandles(
                 exchangeId = exchangeId,
                 baseId = cmcData.coinCapId,
                 interval = "h8"
-            )
-            eightHourData.postValue(eightHourCandles.data ?: mutableListOf())
+            ).data ?: mutableListOf()
             val dayCandles = coinCapRepository.getCandles(
                 exchangeId = exchangeId,
                 baseId = cmcData.coinCapId,
                 interval = "d1"
+            ).data ?: mutableListOf()
+
+            appViewModel.candlePeriodicData.postValue(
+                CandlePeriodicData(
+                    cmcData.cmcId,
+                    hourCandles,
+                    eightHourCandles,
+                    dayCandles
+                )
             )
-            dayData.postValue(dayCandles.data ?: mutableListOf())
 
             timeInterval.value?.run {
                 postCorrespondingData(interval = this)
@@ -80,12 +85,12 @@ class CurrencyDetailsViewModel(
     fun getCurrentTimeFrameCandles(): List<CandleItem> {
         return timeInterval.value?.run {
             return@run when (this) {
-                TimeInterval.DAY -> hourData.value
-                TimeInterval.WEEK -> eightHourData.value
+                TimeInterval.DAY -> appViewModel.candlePeriodicData.value?.dataH1
+                TimeInterval.WEEK -> appViewModel.candlePeriodicData.value?.dataH8
                 TimeInterval.MONTH,
                 TimeInterval.MONTH_3,
                 TimeInterval.MONTH_6,
-                TimeInterval.YEAR -> dayData.value
+                TimeInterval.YEAR -> appViewModel.candlePeriodicData.value?.dataD1
             }
         } ?: mutableListOf()
     }
@@ -94,12 +99,18 @@ class CurrencyDetailsViewModel(
         val count = TimeInterval.getCandleCount(interval)
         when (interval) {
             TimeInterval.DAY -> chartData.postValue(
-                hourData.value?.takeLast(count) ?: mutableListOf()
+                appViewModel.candlePeriodicData.value?.dataH1?.takeLast(count) ?: mutableListOf()
             )
             TimeInterval.WEEK ->
-                chartData.postValue(eightHourData.value?.takeLast(count) ?: mutableListOf())
+                chartData.postValue(
+                    appViewModel.candlePeriodicData.value?.dataH8?.takeLast(count)
+                        ?: mutableListOf()
+                )
             TimeInterval.MONTH, TimeInterval.MONTH_3, TimeInterval.MONTH_6, TimeInterval.YEAR ->
-                chartData.postValue(dayData.value?.takeLast(count) ?: mutableListOf())
+                chartData.postValue(
+                    appViewModel.candlePeriodicData.value?.dataD1?.takeLast(count)
+                        ?: mutableListOf()
+                )
         }
     }
 
@@ -124,5 +135,9 @@ class CurrencyDetailsViewModel(
                 this.replace(R.id.fragment_container, TAMovingAverageFragment())
             }
         }
+    }
+
+    fun cleanUp() {
+//        appViewModel.candlePeriodicData.postValue(null)
     }
 }

@@ -26,7 +26,13 @@ val appModules = module {
     viewModel<TAMovingAverageViewModel>()
     viewModel<TransactionListViewModel>()
     viewModel { (data: CMCDataMinified) -> BuySellPagerViewModel(get(), data) }
-    viewModel { (data: CMCDataMinified) -> CurrencyDetailsViewModel(get(), data) }
+    viewModel { (appVM: AppViewModel, data: CMCDataMinified) ->
+        CurrencyDetailsViewModel(
+            get(),
+            appVM,
+            data
+        )
+    }
     viewModel<AppViewModel>()
     single { CurrencyRepository() }
     single { CoinCapRepository() }

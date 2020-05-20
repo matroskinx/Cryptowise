@@ -39,7 +39,7 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
     }
 
     override fun setupObservers() {
-        appViewModel.currencyListings.observe(viewLifecycleOwner) {
+        appViewModel.assetListings.observe(viewLifecycleOwner) {
             appViewModel.tryUpdatePortfolio()
             fillAdapterData(it)
         }

@@ -23,10 +23,12 @@ import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
+import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.utils.FormatterUtils
 import com.kvladislav.cryptowise.utils.TAUtils
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_currency_details.*
+import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
@@ -34,7 +36,12 @@ import timber.log.Timber
 
 class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details) {
     override fun viewModel(): CurrencyDetailsViewModel =
-        getViewModel { parametersOf(parseArguments(arguments)) }
+        getViewModel {
+            parametersOf(
+                getSharedViewModel<AppViewModel>(),
+                parseArguments(arguments)
+            )
+        }
 
     override fun setupView() {
         setupChart()
@@ -342,6 +349,11 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
                 return FormatterUtils.format(value.toLong())
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel().cleanUp()
     }
 
     companion object {
