@@ -6,7 +6,18 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
+apply plugin: 'com.google.gms.google-services'
+
 android {
+    signingConfigs {
+        releaseConfig {
+            keyAlias 'release_key'
+            keyPassword '2f008bcf08'
+            storeFile file('keystore/keystore.jks')
+            storePassword '2f008bcf08'
+        }
+    }
+
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
@@ -21,6 +32,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
         }
     }
 
@@ -99,4 +111,8 @@ dependencies {
 
     // Material
     implementation 'com.google.android.material:material:1.2.0-alpha06'
+
+    // Firebase
+    implementation 'com.google.firebase:firebase-analytics-ktx:17.4.1'
+    implementation 'com.google.firebase:firebase-auth-ktx:19.3.1'
 }

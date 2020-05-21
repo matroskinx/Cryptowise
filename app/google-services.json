@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "92137315050",
+    "firebase_url": "https://cryptowise.firebaseio.com",
+    "project_id": "cryptowise",
+    "storage_bucket": "cryptowise.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92137315050:android:c9e9eb9f73038b5af61593",
+        "android_client_info": {
+          "package_name": "com.kvladislav.cryptowise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "92137315050-b4he29a2ulahbem4u5cb42vcd4p6r191.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kvladislav.cryptowise",
+            "certificate_hash": "0448a0978199cc1077d7c3323e7d19c1aa267898"
+          }
+        },
+        {
+          "client_id": "92137315050-atj3d595i9elni45kv3ems741c9qgcaa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1DcTUKSmzuoazlZvtngigcO_aBmPyTVE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "92137315050-atj3d595i9elni45kv3ems741c9qgcaa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
