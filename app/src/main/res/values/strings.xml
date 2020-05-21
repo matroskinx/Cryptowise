@@ -38,4 +38,11 @@
     <string name="sma_desc">Simple Moving Average is an unweighted Moving Average. This means that each day in the data set has equal importance and is weighted equally. As each new day ends, the oldest data point is dropped and the newest one is added to the beginning.</string>
     <string name="pick_interval_between_points">Pick interval between points:</string>
     <string name="pick_sma_type">Pick SMA type:</string>
+    <string name="application_name">CRYPTOWISE</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="register">Register</string>
+    <string name="register_invitation">Don\'t have an account yet? Register</string>
+    <string name="login">Login</string>
+    <string name="loading_registration">Please wait while we are registering you!</string>
 </resources>

@@ -15,8 +15,13 @@ import timber.log.Timber
 
 class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinComponent {
     private val preferences: Preferences by inject()
-
     val favouriteList: MutableLiveData<Set<Int>> = MutableLiveData()
+
+    init {
+        withActivity {
+            it.supportActionBar?.show()
+        }
+    }
 
     init {
         favouriteList.value = preferences.getFavouriteCurrencies().ids
