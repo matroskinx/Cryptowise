@@ -71,7 +71,8 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         transactions_btn.setOnClickListener {
             parentFragmentManager.transaction {
                 this.addToBackStack(PortfolioFragment::class.java.canonicalName)
-                this.replace(R.id.fragment_container,
+                this.replace(
+                    R.id.fragment_container,
                     PortfolioFragment()
                 )
             }
@@ -114,7 +115,10 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
                     Picasso.get()
                         .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${this.item.cmcMapItem.id}.png")
                         .into(logo)
-                    price_tv.text = this.item.coinCapAssetItem.priceUsd.toString()
+
+                    val priceText = "${this.item.coinCapAssetItem.priceUsd?.formatDigits(3)}$"
+
+                    price_tv.text = priceText
 
                     if (viewModel().favouriteList.value?.contains(this.item.cmcMapItem.id) == true) {
                         favourite_button.setImageResource(R.drawable.ic_favorite)

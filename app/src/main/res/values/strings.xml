@@ -44,5 +44,5 @@
     <string name="register">Register</string>
     <string name="register_invitation">Don\'t have an account yet? Register</string>
     <string name="login">Login</string>
-    <string name="loading_registration">Please wait while we are registering you!</string>
+    <string name="loading_general">Please wait while we are performing some tasks for you!</string>
 </resources>
