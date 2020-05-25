@@ -7,9 +7,13 @@ import android.widget.Toast
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.enums.TransactionType
+import com.kvladislav.cryptowise.extensions.formatDigits
+import com.kvladislav.cryptowise.models.BuySellForm
 import com.kvladislav.cryptowise.models.CMCDataMinified
+import com.kvladislav.cryptowise.screens.AppViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_buy_sell_pager.*
+import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
@@ -41,6 +45,18 @@ class BuySellPagerFragment : BaseFragment(R.layout.fragment_buy_sell_pager) {
         }
         setupBasicView()
         setupDropdown()
+        setupCoinPriceView()
+    }
+
+    private fun setupCoinPriceView() {
+        val args = parseArguments(arguments)
+        getSharedViewModel<AppViewModel>().assetListings.value?.run {
+            this.find {
+                it.cmcId == args.cmcId
+            }?.run {
+                price_et.setText(this.coinCapAssetItem.priceUsd?.formatDigits(2))
+            }
+        }
     }
 
     private fun setupBasicView() {
@@ -127,11 +143,4 @@ class BuySellPagerFragment : BaseFragment(R.layout.fragment_buy_sell_pager) {
 
     }
 }
-
-data class BuySellForm(
-    val price: Double,
-    val quantity: Double,
-    val fee: Double,
-    val timestamp: Long
-)
 

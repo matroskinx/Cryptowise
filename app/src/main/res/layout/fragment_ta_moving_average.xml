@@ -40,6 +40,7 @@
             android:gravity="center"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
+            app:selectionRequired="true"
             app:singleSelection="true">
 
             <com.google.android.material.button.MaterialButton
@@ -79,6 +80,7 @@
             android:gravity="center"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
+            app:selectionRequired="true"
             app:singleSelection="true">
 
             <com.google.android.material.button.MaterialButton

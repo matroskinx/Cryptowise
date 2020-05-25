@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.enums.TransactionType
+import com.kvladislav.cryptowise.models.BuySellForm
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.portfolio.PortfolioItem
 import com.kvladislav.cryptowise.models.transactions.BuySellTransaction
