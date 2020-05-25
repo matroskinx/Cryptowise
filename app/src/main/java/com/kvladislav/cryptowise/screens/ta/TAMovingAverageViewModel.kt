@@ -9,12 +9,12 @@ import java.lang.IllegalArgumentException
 
 class TAMovingAverageViewModel(
     private val context: Context,
-    val appViewModel: AppViewModel
+    private val appViewModel: AppViewModel
 ) : BaseViewModel() {
 
     val indicatorChartData = MutableLiveData<List<Float>>(mutableListOf())
 
-    // interval 1h,8h, 1d
+    // interval 1h, 8h, 1d
     // type 5, 20, 50, 100
     fun onIntervalToggle(intervalToggleId: Int, typeToggleId: Int) {
         buildSMA(intervalToggleId, typeToggleId)

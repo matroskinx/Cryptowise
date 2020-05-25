@@ -117,38 +117,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         }
     }
 
-    private fun buildEMA(allCandles: List<CandleItem>) {
-        val periods = mutableListOf(10, 20)
-        val views = mutableListOf(ema_12, ema_26)
-
-        for (i in 0 until periods.count()) {
-            val emas = calculateEMA(allCandles, periods[i])
-            views[i].text = emas.last().toString()
-            // TODO
-//            fillSMAChartWithData(emas)
-        }
-    }
-
-    private fun calculateEMA(allCandles: List<CandleItem>, mockPeriod: Int): MutableList<Float> {
-        val periodCandles = allCandles.takeLast(mockPeriod * 2)
-        val smaCandles = periodCandles.take(mockPeriod)
-        val emaCandles = periodCandles.takeLast(mockPeriod)
-        val initialSMA = TAUtils.candlesAverage(smaCandles)
-
-        val smoothingConstant: Float = 2f / (mockPeriod + 1)
-
-        val EMAs = mutableListOf<Float>()
-        for (i in 0 until emaCandles.count()) {
-            val previousDay = if (i == 0) initialSMA else (EMAs[i - 1])
-            val value =
-                (emaCandles[i].close!!.toFloat() - previousDay) * smoothingConstant + previousDay
-            EMAs.add(value)
-        }
-
-        return EMAs
-    }
-
-
     private fun fillOHLCChartWithData(items: List<CandleItem>) {
         Timber.d("Candles amount: ${items.count()}")
         if (items.count() == 0) {

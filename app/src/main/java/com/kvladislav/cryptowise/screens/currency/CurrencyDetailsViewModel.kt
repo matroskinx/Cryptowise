@@ -13,6 +13,7 @@ import com.kvladislav.cryptowise.models.CandlePeriodicData
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.screens.AppViewModel
+import com.kvladislav.cryptowise.screens.ta.TAEMAFragment
 import com.kvladislav.cryptowise.screens.ta.TAMovingAverageFragment
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
 import kotlinx.coroutines.Dispatchers
@@ -116,15 +117,20 @@ class CurrencyDetailsViewModel(
     }
 
     fun onTATap(taType: TAType) {
+        val fragment = when (taType) {
+            TAType.SIMPLE_MOVING_AVERAGE -> TAMovingAverageFragment()
+            TAType.EXP_MOVING_AVERAGE -> TAEMAFragment()
+            TAType.OSCILLATOR -> TAEMAFragment()
+        }
+
         withActivity {
             it.supportFragmentManager.transaction {
-                this.addToBackStack(TAMovingAverageFragment::class.java.canonicalName)
-                this.replace(R.id.fragment_container, TAMovingAverageFragment())
+                this.addToBackStack(fragment::class.java.canonicalName)
+                this.replace(R.id.fragment_container, fragment)
             }
         }
     }
 
     fun cleanUp() {
-//        appViewModel.candlePeriodicData.postValue(null)
     }
 }
