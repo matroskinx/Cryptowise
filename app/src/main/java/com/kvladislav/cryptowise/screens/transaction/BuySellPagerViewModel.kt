@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import timber.log.Timber
 
 class BuySellPagerViewModel(private val context: Context, val cmcData: CMCDataMinified) :
     BaseViewModel(), KoinComponent {
@@ -33,14 +34,17 @@ class BuySellPagerViewModel(private val context: Context, val cmcData: CMCDataMi
             createModel.quantity,
             createModel.fee,
             cmcData.cmcId,
+            cmcData.coinCapId,
             cmcData.symbol,
             ""
         )
         viewModelScope.launch(Dispatchers.IO) {
             transactionRepository.addTransaction(transaction)
-            portfolioRepository.allAssets.value?.run {
+            portfolioRepository.getAssets().run {
+                Timber.d("All assets: $this")
                 val item = this.find { it.coinCapId == cmcData.coinCapId }
                 if (item != null) {
+                    Timber.d("Updating asset $item")
                     if (currentType == TransactionType.BUY) {
                         item.assetAmount += transaction.coinQuantity
                     } else {
@@ -48,6 +52,7 @@ class BuySellPagerViewModel(private val context: Context, val cmcData: CMCDataMi
                     }
                     portfolioRepository.updateAsset(item)
                 } else {
+                    Timber.d("Adding asset")
                     portfolioRepository.addAsset(
                         PortfolioItem(
                             cmcData.coinCapId,

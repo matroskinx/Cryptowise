@@ -45,7 +45,7 @@ val appModules = module {
     single { CurrencyRepository() }
     single { CoinCapRepository() }
     single { Preferences(get()) }
-    single { TransactionDatabase.getDatabase(androidApplication()) }
+    single { TransactionDatabase.getDatabase(androidApplication().applicationContext) }
     single { DataStorage() }
     factory { get<TransactionDatabase>().transactionDao() }
     factory { get<TransactionDatabase>().portfolioDao() }

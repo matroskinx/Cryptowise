@@ -13,4 +13,8 @@ class TransactionRepository : KoinComponent {
     suspend fun addTransaction(transaction: BuySellTransaction) {
         transactionDao.insert(transaction)
     }
+
+    suspend fun removeTransaction(itemId: Int) {
+        transactionDao.delete(itemId)
+    }
 }

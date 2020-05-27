@@ -18,6 +18,7 @@ data class BuySellTransaction(
     val coinQuantity: Double,
     val fee: Double,
     val cmcId: Int,
+    val coinCapId: String,
     val cmcSymbol: String,
     val userNote: String
 )

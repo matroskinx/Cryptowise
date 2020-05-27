@@ -48,22 +48,24 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
                     operation_tv.text = item.type.getFriendlyName(context)
                     quantity_tv.text = "${item.coinQuantity} ${item.cmcSymbol}"
                     date_tv.text = FormatterUtils.formatDate(item.timestamp)
-
                     val operation = when (item.type) {
                         TransactionType.BUY -> "Paid"
                         TransactionType.SELL -> "Received"
                         TransactionType.TRANSFER -> "Transferred"
                     }
-
-                    usd_tv.text = "$operation ${item.usdPerCoin}$"
-
+                    val operationText = "$operation ${item.usdPerCoin * item.coinQuantity}$"
+                    usd_tv.text = operationText
                     Picasso.get()
                         .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${item.cmcId}.png")
                         .into(operation_iv)
+
+                    clear_button.setOnClickListener {
+                        viewModel().onItemClicked(item)
+                    }
                 }
             }
 
-        adapter = ListDelegationAdapter<List<BuySellTransaction>>(transactionAdapter)
+        adapter = ListDelegationAdapter(transactionAdapter)
         transaction_rv.layoutManager = LinearLayoutManager(context)
         transaction_rv.adapter = adapter
     }

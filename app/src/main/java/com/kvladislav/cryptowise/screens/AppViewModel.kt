@@ -1,6 +1,7 @@
 package com.kvladislav.cryptowise.screens
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import com.kvladislav.cryptowise.DataStorage
 import com.kvladislav.cryptowise.base.BaseViewModel
@@ -10,6 +11,7 @@ import com.kvladislav.cryptowise.models.cmc_map.CMCMapItem
 import com.kvladislav.cryptowise.models.coin_cap.assets.CoinCapAssetItem
 import com.kvladislav.cryptowise.models.portfolio.DisplayPortfolioItem
 import com.kvladislav.cryptowise.models.portfolio.FullPortfolio
+import com.kvladislav.cryptowise.models.portfolio.PortfolioItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.repositories.PortfolioRepository
@@ -27,6 +29,14 @@ class AppViewModel : BaseViewModel(), KoinComponent {
 
     val portfolioAssets = liveData(Dispatchers.IO) {
         emitSource(portfolioRepository.allAssets)
+    }
+
+    private val portfolioObserver = Observer<List<PortfolioItem>> {
+        tryUpdatePortfolio()
+    }
+
+    init {
+        portfolioAssets.observeForever(portfolioObserver)
     }
 
     val assetListings = liveData(Dispatchers.IO) {
@@ -94,5 +104,10 @@ class AppViewModel : BaseViewModel(), KoinComponent {
 
         val portfolio = FullPortfolio(sum, displayItems)
         fullPortfolio.postValue(portfolio)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        portfolioAssets.removeObserver(portfolioObserver)
     }
 }
