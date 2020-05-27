@@ -146,7 +146,7 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
                 }
             }
-        adapter = ListDelegationAdapter<List<CombinedAssetModel>>(newCurrencyAdapter)
+        adapter = ListDelegationAdapter(newCurrencyAdapter)
         currency_rv.addItemDecoration(
             DividerItemDecoration(
                 currency_rv.context,

@@ -45,4 +45,5 @@
     <string name="register_invitation">Don\'t have an account yet? Register</string>
     <string name="login">Login</string>
     <string name="loading_general">Please wait while we are performing some tasks for you!</string>
+    <string name="ema">EMA</string>
 </resources>

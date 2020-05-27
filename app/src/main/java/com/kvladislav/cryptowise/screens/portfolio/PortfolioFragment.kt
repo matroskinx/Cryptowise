@@ -149,7 +149,7 @@ class PortfolioFragment : BaseFragment(R.layout.fragment_portfolio) {
 
 
 
-        adapter = ListDelegationAdapter<List<DisplayPortfolioItem>>(portfolioAssetAdapter)
+        adapter = ListDelegationAdapter(portfolioAssetAdapter)
         asset_rv.addItemDecoration(
             DividerItemDecoration(
                 asset_rv.context,

@@ -18,24 +18,24 @@ class TAEMAViewModel(
     private val emaType = MutableLiveData(TAEMAFragment.EMAType.EMA_5)
 
     init {
-        newBuildEMA(frameInterval.value!!, emaType.value!!)
+        buildEMA(frameInterval.value!!, emaType.value!!)
     }
 
     fun onIntervalToggle(frameInterval: TAEMAFragment.FrameInterval) {
         this.frameInterval.postValue(frameInterval)
         emaType.value?.run {
-            newBuildEMA(frameInterval, this)
+            buildEMA(frameInterval, this)
         }
     }
 
     fun onTypeToggle(emaType: TAEMAFragment.EMAType) {
         this.emaType.postValue(emaType)
         frameInterval.value?.run {
-            newBuildEMA(this, emaType)
+            buildEMA(this, emaType)
         }
     }
 
-    private fun newBuildEMA(
+    private fun buildEMA(
         frameInterval: TAEMAFragment.FrameInterval,
         emaType: TAEMAFragment.EMAType
     ) {
@@ -46,15 +46,6 @@ class TAEMAViewModel(
         } ?: listOf()
         val period = emaType.period
         indicatorChartData.postValue(calculateEMA(allCandles, period))
-    }
-
-    private fun buildEMA(allCandles: List<CandleItem>) {
-        val periods = mutableListOf(10, 20)
-
-        for (i in 0 until periods.count()) {
-            val emas = calculateEMA(allCandles, periods[i])
-//            fillSMAChartWithData(emas)
-        }
     }
 
     /// return exponential moving average for given period, for example EMA(20) for interval with

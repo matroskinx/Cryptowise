@@ -78,21 +78,17 @@ class AppViewModel : BaseViewModel(), KoinComponent {
         Timber.d("Setting up portfolio value")
         val listings = assetListings.value ?: return
         val portfolioAssets = portfolioAssets.value ?: return
-        Timber.d("Track is ready!")
 
         var sum = 0.0
         val displayItems = mutableListOf<DisplayPortfolioItem>()
 
         portfolioAssets.forEach { portfolioItem ->
-            val asset = listings.find {
+            listings.find {
                 portfolioItem.coinCapId == it.coinCapAssetItem.id
-            }
-            if (asset != null && asset.coinCapAssetItem.id != null) {
-                val price = asset.coinCapAssetItem.priceUsd!!.toDouble()
-                Timber.d("Asset price: $price; Sum before: $sum")
+            }?.run {
+                val price = this.coinCapAssetItem.priceUsd ?: 0.0
                 sum += price * portfolioItem.assetAmount
                 displayItems.add(DisplayPortfolioItem(portfolioItem, price))
-                Timber.d("Sum after: $sum")
             }
         }
 

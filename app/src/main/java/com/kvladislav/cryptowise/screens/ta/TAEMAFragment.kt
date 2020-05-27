@@ -44,7 +44,7 @@ class TAEMAFragment : BaseFragment(R.layout.fragment_ta_ema) {
             values.add(Entry(start, v))
             start++
         }
-        val dataSet = LineDataSet(values, "SMA 5")
+        val dataSet = LineDataSet(values, getString(R.string.ema))
         dataSet.setDrawCircles(false)
         dataSet.lineWidth = 2f
         context?.run {
@@ -91,9 +91,7 @@ class TAEMAFragment : BaseFragment(R.layout.fragment_ta_ema) {
     }
 
     private fun setupIntervalDropdown() {
-        val intervals = FrameInterval.values().map {
-            it.friendlyName
-        }
+        val intervals = FrameInterval.values().map { it.friendlyName }
         context?.let {
             val adapter =
                 ArrayAdapter(it, R.layout.dropdown_item, intervals)

@@ -20,8 +20,8 @@ class CurrencyRepository {
         return webservice.getIDMap(CMC_API_KEY)
     }
 
-    suspend fun getListings() : CMCListingsResponse {
-        return webservice.getLatestListings(CMC_API_KEY)
+    suspend fun getListings(start: Int, limit: Int): CMCListingsResponse {
+        return webservice.getLatestListings(CMC_API_KEY, start, limit)
     }
 
     companion object {
