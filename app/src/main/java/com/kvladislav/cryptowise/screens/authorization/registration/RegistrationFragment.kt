@@ -2,6 +2,7 @@ package com.kvladislav.cryptowise.screens.authorization.registration
 
 import androidx.core.view.isVisible
 import com.kvladislav.cryptowise.R
+import com.kvladislav.cryptowise.base.BaseActivity
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.extensions.observe
 import kotlinx.android.synthetic.main.fragment_registration.*
@@ -24,6 +25,7 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
                 hasError = true
             }
             if (!hasError) {
+                (activity as? BaseActivity)?.hideSoftKeyboard()
                 viewModel().onRegisterTap(email, password)
             }
         }
