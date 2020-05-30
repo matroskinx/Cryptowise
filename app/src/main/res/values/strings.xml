@@ -48,4 +48,5 @@
     <string name="ema">EMA</string>
     <string name="no_connection_error">Look like there is no internet connection</string>
     <string name="no_assets_message">Hmm!\n You don\'t have any assets yet</string>
+    <string name="unknown_error">Unknown error occurred!</string>
 </resources>

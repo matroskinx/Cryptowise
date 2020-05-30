@@ -3,10 +3,10 @@ package com.kvladislav.cryptowise.screens.currency
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
@@ -44,6 +44,7 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         }
 
     override fun setupView() {
+        showLoadingLayout()
         setupOHLCChart()
         setupVolumeChart()
         day_chip.isChecked = true
@@ -99,22 +100,42 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
                 viewModel().onIntervalChange(this)
             }
         }
+
+        refresh_button.setOnClickListener {
+            showLoadingLayout()
+            viewModel().onRefreshTap()
+        }
     }
 
     override fun setupObservers() {
         viewModel().chartData.observe(viewLifecycleOwner) { candles ->
             fillOHLCChartWithData(candles)
             fillVolumeChartWithData(candles)
+            showDefaultLayout()
         }
-        viewModel().isLoaded.observe(viewLifecycleOwner) { isLoaded ->
-            if (isLoaded) {
-                main_ll.visibility = View.VISIBLE
-                loading_layout.visibility = View.GONE
-            } else {
-                main_ll.visibility = View.GONE
-                loading_layout.visibility = View.VISIBLE
+        viewModel().connectionErrorLiveData.observe(viewLifecycleOwner) {
+            it?.run {
+                showNoConnectionLayout()
             }
         }
+    }
+
+    private fun showDefaultLayout() {
+        main_ll.isVisible = true
+        loading_layout.isVisible = false
+        no_connection_layout.isVisible = false
+    }
+
+    private fun showLoadingLayout() {
+        main_ll.isVisible = false
+        loading_layout.isVisible = true
+        no_connection_layout.isVisible = false
+    }
+
+    private fun showNoConnectionLayout() {
+        main_ll.isVisible = false
+        loading_layout.isVisible = false
+        no_connection_layout.isVisible = true
     }
 
     private fun fillOHLCChartWithData(items: List<CandleItem>) {
@@ -241,11 +262,6 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         volume_chart.legend.textColor = Color.WHITE
         volume_chart.legend.typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_slab)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel().cleanUp()
     }
 
     companion object {

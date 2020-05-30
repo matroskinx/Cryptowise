@@ -6,7 +6,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.kvladislav.cryptowise.DataStorage
-import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.base.SingleLiveEvent
 import com.kvladislav.cryptowise.models.CandlePeriodicData
@@ -19,12 +18,12 @@ import com.kvladislav.cryptowise.models.portfolio.PortfolioItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.repositories.PortfolioRepository
+import com.kvladislav.cryptowise.utils.handleException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
-import java.net.UnknownHostException
 
 class AppViewModel(private val context: Context) : BaseViewModel(), KoinComponent {
 
@@ -56,15 +55,12 @@ class AppViewModel(private val context: Context) : BaseViewModel(), KoinComponen
             }
         } catch (e: Exception) {
             Timber.e(e)
-            handleException(e)
+            onException(e)
         }
     }
 
-    private fun handleException(e: Exception) {
-        when {
-            e is UnknownHostException ->
-                connectionErrorLiveData.postValue(context.getString(R.string.no_connection_error))
-        }
+    private fun onException(e: Exception) {
+        connectionErrorLiveData.postValue(context.getString(handleException(e)))
     }
 
     val candlePeriodicData = MutableLiveData<CandlePeriodicData>()

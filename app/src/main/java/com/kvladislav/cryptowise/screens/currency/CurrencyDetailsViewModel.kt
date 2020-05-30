@@ -2,9 +2,10 @@ package com.kvladislav.cryptowise.screens.currency
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
+import com.kvladislav.cryptowise.base.SingleLiveEvent
 import com.kvladislav.cryptowise.enums.TAType
 import com.kvladislav.cryptowise.enums.TimeInterval
 import com.kvladislav.cryptowise.extensions.transaction
@@ -16,7 +17,9 @@ import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.screens.ta.TAEMAFragment
 import com.kvladislav.cryptowise.screens.ta.TAMovingAverageFragment
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
+import com.kvladislav.cryptowise.utils.handleException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
@@ -28,23 +31,18 @@ class CurrencyDetailsViewModel(
     private val appViewModel: AppViewModel,
     val cmcData: CMCDataMinified
 ) : BaseViewModel(), KoinComponent {
-    init {
-        Timber.d("init: $cmcData sharedVM: $appViewModel")
-    }
-
     private val coinCapRepository: CoinCapRepository by inject()
     val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
+    val connectionErrorLiveData = SingleLiveEvent<String>()
 
     // data only for chart display
     val chartData: MutableLiveData<List<CandleItem>> = MutableLiveData()
 
-    val isLoaded = liveData(Dispatchers.IO) {
-        emit(false)
+    init {
         requestCandles()
-        emit(true)
     }
 
-    private suspend fun requestCandles() {
+    private fun requestCandles() = viewModelScope.launch(Dispatchers.IO) {
         try {
             val exchangeId = coinCapRepository.getBestRankedMarketForCoin(cmcData.coinCapId)
                 ?: throw IllegalStateException("Was unable to find market")
@@ -65,7 +63,7 @@ class CurrencyDetailsViewModel(
                 baseId = cmcData.coinCapId,
                 interval = "d1"
             ).data ?: mutableListOf()
-
+            connectionErrorLiveData.postValue(null)
             appViewModel.candlePeriodicData.postValue(
                 CandlePeriodicData(
                     cmcData.cmcId,
@@ -74,13 +72,17 @@ class CurrencyDetailsViewModel(
                     dayCandles
                 )
             )
-
             timeInterval.value?.run {
                 postCorrespondingData(interval = this)
             }
         } catch (e: Exception) {
             Timber.e(e)
+            onException(e)
         }
+    }
+
+    private fun onException(e: Exception) {
+        connectionErrorLiveData.postValue(context.getString(handleException(e)))
     }
 
     private fun postCorrespondingData(interval: TimeInterval) {
@@ -131,6 +133,7 @@ class CurrencyDetailsViewModel(
         }
     }
 
-    fun cleanUp() {
+    fun onRefreshTap() {
+        requestCandles()
     }
 }
