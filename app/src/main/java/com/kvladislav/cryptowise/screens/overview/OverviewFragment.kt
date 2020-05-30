@@ -37,6 +37,7 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     override fun setupView() {
         setupAdapter()
+        setLoadingView()
     }
 
     override fun setupObservers() {
@@ -97,18 +98,21 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         progress_bar.isVisible = false
         no_connection_layout.isVisible = false
         currency_rv.isVisible = true
+        portfolio_panel.isVisible = true
     }
 
     private fun setLoadingView() {
         progress_bar.isVisible = true
         no_connection_layout.isVisible = false
         currency_rv.isVisible = false
+        portfolio_panel.isVisible = false
     }
 
     private fun setNoConnectionView() {
         progress_bar.isVisible = false
         no_connection_layout.isVisible = true
         currency_rv.isVisible = false
+        portfolio_panel.isVisible = false
     }
 
     private fun setupHoldingsValue(coinCapId: String, assetValue: Double): String {

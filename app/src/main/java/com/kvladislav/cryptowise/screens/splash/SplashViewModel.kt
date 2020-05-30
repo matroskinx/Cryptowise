@@ -43,6 +43,6 @@ class SplashViewModel : BaseViewModel() {
                     }
                 }
             }
-        }, 3000)
+        }, 500)
     }
 }

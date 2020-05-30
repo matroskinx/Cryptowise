@@ -8,6 +8,7 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/portfolio_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/dark_grey"
@@ -64,6 +65,8 @@
             android:layout_gravity="center" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
             android:id="@+id/currency_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
