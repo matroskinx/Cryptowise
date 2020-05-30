@@ -2,6 +2,7 @@ package com.kvladislav.cryptowise.screens.portfolio
 
 import android.graphics.Color
 import android.os.Bundle
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.animation.Easing
@@ -115,10 +116,25 @@ class PortfolioFragment : BaseFragment(R.layout.fragment_portfolio) {
     }
 
     override fun setupObservers() {
-        appViewModel.fullPortfolio.observe(viewLifecycleOwner) {
-            setupChartData(it)
-            setRecyclerViewData(it)
+        appViewModel.fullPortfolio.observe(viewLifecycleOwner) { portfolio ->
+            if (portfolio.isEmpty) {
+                setupEmptyPortfolioView()
+            } else {
+                setupChartData(portfolio)
+                setRecyclerViewData(portfolio)
+                setupDefaultPortfolioView()
+            }
         }
+    }
+
+    private fun setupEmptyPortfolioView() {
+        portfolio_empty_layout.isVisible = true
+        portolio_layout.isVisible = false
+    }
+
+    private fun setupDefaultPortfolioView() {
+        portfolio_empty_layout.isVisible = false
+        portolio_layout.isVisible = true
     }
 
     private fun getAssetPercent(holdValue: Double): Double {
