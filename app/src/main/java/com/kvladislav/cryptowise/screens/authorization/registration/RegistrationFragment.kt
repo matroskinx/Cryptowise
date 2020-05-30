@@ -12,9 +12,20 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
 
     override fun setupListeners() {
         register_button.setOnClickListener {
+            var hasError = false
             val email = email_et.text.toString()
+            if (email.isEmpty()) {
+                email_et.error = "Incorrect email"
+                hasError = true
+            }
             val password = password_et.text.toString()
-            viewModel().onRegisterTap(email, password)
+            if (password.isEmpty()) {
+                password_et.error = "Incorrect password"
+                hasError = true
+            }
+            if (!hasError) {
+                viewModel().onRegisterTap(email, password)
+            }
         }
     }
 
