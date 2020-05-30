@@ -2,6 +2,7 @@ package com.kvladislav.cryptowise.screens.overview
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
@@ -58,6 +59,14 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
             adapter.notifyDataSetChanged()
             portfolio_value_tv.text = text
         }
+
+        appViewModel.connectionErrorLiveData.observe(viewLifecycleOwner) {
+
+            it?.run {
+                Timber.d("Trigger no connection LiveData")
+                setNoConnectionView()
+            }
+        }
     }
 
     private fun fillAdapterData(listings: List<CombinedAssetModel>) {
@@ -77,11 +86,29 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
                 )
             }
         }
+
+        refresh_button.setOnClickListener {
+            setLoadingView()
+            appViewModel.tryRefreshListings()
+        }
     }
 
     private fun setLoadedView() {
-        progress_bar.visibility = View.GONE
-        currency_rv.visibility = View.VISIBLE
+        progress_bar.isVisible = false
+        no_connection_layout.isVisible = false
+        currency_rv.isVisible = true
+    }
+
+    private fun setLoadingView() {
+        progress_bar.isVisible = true
+        no_connection_layout.isVisible = false
+        currency_rv.isVisible = false
+    }
+
+    private fun setNoConnectionView() {
+        progress_bar.isVisible = false
+        no_connection_layout.isVisible = true
+        currency_rv.isVisible = false
     }
 
     private fun setupHoldingsValue(coinCapId: String, assetValue: Double): String {

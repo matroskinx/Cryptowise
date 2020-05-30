@@ -1,10 +1,14 @@
 package com.kvladislav.cryptowise.screens
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.kvladislav.cryptowise.DataStorage
+import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
+import com.kvladislav.cryptowise.base.SingleLiveEvent
 import com.kvladislav.cryptowise.models.CandlePeriodicData
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.cmc_map.CMCMapItem
@@ -16,38 +20,50 @@ import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.repositories.CurrencyRepository
 import com.kvladislav.cryptowise.repositories.PortfolioRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
+import java.net.UnknownHostException
 
-class AppViewModel : BaseViewModel(), KoinComponent {
+class AppViewModel(private val context: Context) : BaseViewModel(), KoinComponent {
 
     private val coinMarketCapRepo: CurrencyRepository by inject()
     private val coinCapRepository: CoinCapRepository by inject()
     private val portfolioRepository: PortfolioRepository by inject()
     val fullPortfolio: MutableLiveData<FullPortfolio> = MutableLiveData()
-
-    val portfolioAssets = liveData(Dispatchers.IO) {
-        emitSource(portfolioRepository.allAssets)
-    }
-
-    private val portfolioObserver = Observer<List<PortfolioItem>> {
-        tryUpdatePortfolio()
-    }
+    val connectionErrorLiveData = SingleLiveEvent<String?>()
+    val portfolioAssets = liveData(Dispatchers.IO) { emitSource(portfolioRepository.allAssets) }
+    private val portfolioObserver = Observer<List<PortfolioItem>> { tryUpdatePortfolio() }
+    val assetListings = MutableLiveData<List<CombinedAssetModel>>()
 
     init {
         portfolioAssets.observeForever(portfolioObserver)
+        loadAssetListings()
     }
 
-    val assetListings = liveData(Dispatchers.IO) {
-        val assets = coinCapRepository.getAssets()
-        val cmcMap = coinMarketCapRepo.getIDMap()
-        val coinIds = getCoinIdsFromTrustworthyProviders()
-        val cmcMapData = cmcMap.data?.sortedBy { it.rank }
-        cmcMapData?.let { cmc ->
-            assets.data?.let { assets ->
-                emit(combineCMCWithCoinCap(cmc, assets, coinIds))
+    private fun loadAssetListings() = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            val assets = coinCapRepository.getAssets()
+            val cmcMap = coinMarketCapRepo.getIDMap()
+            val coinIds = getCoinIdsFromTrustworthyProviders()
+            val cmcMapData = cmcMap.data?.sortedBy { it.rank }
+            cmcMapData?.let { cmc ->
+                assets.data?.let { assets ->
+                    connectionErrorLiveData.postValue(null)
+                    assetListings.postValue(combineCMCWithCoinCap(cmc, assets, coinIds))
+                }
             }
+        } catch (e: Exception) {
+            Timber.e(e)
+            handleException(e)
+        }
+    }
+
+    private fun handleException(e: Exception) {
+        when {
+            e is UnknownHostException ->
+                connectionErrorLiveData.postValue(context.getString(R.string.no_connection_error))
         }
     }
 
@@ -109,5 +125,9 @@ class AppViewModel : BaseViewModel(), KoinComponent {
     override fun onCleared() {
         super.onCleared()
         portfolioAssets.removeObserver(portfolioObserver)
+    }
+
+    fun tryRefreshListings() {
+        loadAssetListings()
     }
 }

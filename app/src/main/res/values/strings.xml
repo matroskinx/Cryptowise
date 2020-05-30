@@ -46,4 +46,5 @@
     <string name="login">Login</string>
     <string name="loading_general">Please wait while we are performing some tasks for you!</string>
     <string name="ema">EMA</string>
+    <string name="no_connection_error">Look like there is no internet connection</string>
 </resources>
