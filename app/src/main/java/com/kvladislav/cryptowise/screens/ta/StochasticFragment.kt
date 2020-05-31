@@ -10,6 +10,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
+import com.kvladislav.cryptowise.dialogs.BottomSheetFragment
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.utils.FormatterUtils
@@ -24,9 +25,18 @@ class StochasticFragment : BaseFragment(R.layout.fragment_stochastic) {
         getViewModel { parametersOf(getSharedViewModel<AppViewModel>()) }
 
     override fun setupView() {
-        setupEMAChart()
+        setupStochasticChart()
         setupIntervalDropdown()
         setupTypeDropdown()
+    }
+
+    override fun setupListeners() {
+        help_button.setOnClickListener {
+            BottomSheetFragment(
+                getString(R.string.stochastic_header),
+                getString(R.string.stochastic_desc)
+            ).show(parentFragmentManager, "TAG")
+        }
     }
 
     override fun setupObservers() {
@@ -58,7 +68,7 @@ class StochasticFragment : BaseFragment(R.layout.fragment_stochastic) {
     }
 
 
-    private fun setupEMAChart() {
+    private fun setupStochasticChart() {
         val rightAxis = stochastic_line_chart.axisRight
         rightAxis.setDrawGridLines(false)
         rightAxis.isEnabled = false

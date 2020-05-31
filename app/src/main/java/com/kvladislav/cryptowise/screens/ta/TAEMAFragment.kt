@@ -10,6 +10,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
+import com.kvladislav.cryptowise.dialogs.BottomSheetFragment
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.utils.FormatterUtils
@@ -29,6 +30,16 @@ class TAEMAFragment : BaseFragment(R.layout.fragment_ta_ema) {
         setupIntervalDropdown()
         setupTypeDropdown()
     }
+
+    override fun setupListeners() {
+        help_button.setOnClickListener {
+            BottomSheetFragment(
+                getString(R.string.ema_header),
+                getString(R.string.ema_desc)
+            ).show(parentFragmentManager, "TAG")
+        }
+    }
+
 
     override fun setupObservers() {
         viewModel().indicatorChartData.observe(viewLifecycleOwner) {
