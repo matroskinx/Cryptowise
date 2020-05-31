@@ -63,4 +63,5 @@
     <string name="ema_desc">The exponential moving average (EMA) is a technical chart indicator that tracks the price of an investment (like a stock or commodity) over time. The EMA is a type of weighted moving average (WMA) that gives more weighting or importance to recent price data. Like the simple moving average, the exponential moving average is used to see price trends over time.</string>
     <string name="no_favourites_yet">You don\'t have any favourites yet!</string>
     <string name="exit">Exit</string>
+    <string name="transaction_list_empty">Transaction list is empty now!</string>
 </resources>

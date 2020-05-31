@@ -1,6 +1,7 @@
 package com.kvladislav.cryptowise.screens.transaction_management
 
 import android.os.Bundle
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
@@ -37,7 +38,12 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
         viewModel().allTransactions.observe(viewLifecycleOwner) {
             adapter.items = it
             adapter.notifyDataSetChanged()
+            setupEmptyTransactionsView(it.isEmpty())
         }
+    }
+
+    private fun setupEmptyTransactionsView(isVisible: Boolean) {
+        transactions_empty_layout.isVisible = isVisible
     }
 
     private fun setupAdapter() {
