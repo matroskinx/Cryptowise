@@ -6,6 +6,7 @@ import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.utils.TAUtils
+import timber.log.Timber
 
 class TAEMAViewModel(
     private val context: Context,
@@ -53,9 +54,10 @@ class TAEMAViewModel(
 
     // TODO check period length
     private fun calculateEMA(allCandles: List<CandleItem>, period: Int): List<Float> {
-        val periodCandles = allCandles.takeLast(period * 2)
+        val dataPointCount = 100
+        val periodCandles = allCandles.takeLast(dataPointCount + period)
         val smaCandles = periodCandles.take(period)
-        val emaCandles = periodCandles.takeLast(period)
+        val emaCandles = periodCandles.takeLast(dataPointCount + period)
         val initialSMA = TAUtils.candlesAverage(smaCandles)
 
         val smoothingConstant: Float = 2f / (period + 1)
@@ -68,6 +70,7 @@ class TAEMAViewModel(
             EMAs.add(value)
         }
 
+        Timber.d("EMA COUNT: ${EMAs.count()}")
         return EMAs
     }
 }
