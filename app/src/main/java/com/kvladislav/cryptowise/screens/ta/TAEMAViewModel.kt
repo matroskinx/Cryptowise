@@ -50,6 +50,8 @@ class TAEMAViewModel(
 
     /// return exponential moving average for given period, for example EMA(20) for interval with
     /// length of 20
+
+    // TODO check period length
     private fun calculateEMA(allCandles: List<CandleItem>, period: Int): List<Float> {
         val periodCandles = allCandles.takeLast(period * 2)
         val smaCandles = periodCandles.take(period)

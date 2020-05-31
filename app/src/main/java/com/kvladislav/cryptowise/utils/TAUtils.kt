@@ -26,5 +26,26 @@ class TAUtils {
             }
             return movingAverages
         }
+
+        // Calculates using every given candle
+        fun stochasticOscillator(candles: List<CandleItem>, N: Int): List<Float> {
+            val candleSublists: MutableList<List<CandleItem>> = mutableListOf()
+            for (i in 0..candles.count() - N) {
+                candleSublists.add(candles.subList(i, i + N))
+            }
+            val stochastics = mutableListOf<Float>()
+            candleSublists.forEach {
+                stochastics.add(findStochasticK(it))
+            }
+            return stochastics
+        }
+
+        private fun findStochasticK(candles: List<CandleItem>): Float {
+            val C: Double = candles.last().close ?: 0.0
+            val LN: Double = candles.minBy { it.close ?: 0.0 }?.close ?: 0.0
+            val HN: Double = candles.maxBy { it.close ?: 0.0 }?.close ?: 0.0
+            val K = (C - LN) / (HN - LN) * 100
+            return K.toFloat()
+        }
     }
 }

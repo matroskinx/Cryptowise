@@ -54,4 +54,7 @@
     <string name="rank">Rank</string>
     <string name="market_cap">Market cap</string>
     <string name="volume_usd">Volume (USD)</string>
+    <string name="pick_stochastic_type">Pick stochastic indicator type:</string>
+    <string name="interval">Interval</string>
+    <string name="type">Type</string>
 </resources>

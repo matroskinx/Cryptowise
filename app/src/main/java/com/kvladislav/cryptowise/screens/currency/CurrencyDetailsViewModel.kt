@@ -15,6 +15,7 @@ import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.screens.AppViewModel
+import com.kvladislav.cryptowise.screens.ta.StochasticFragment
 import com.kvladislav.cryptowise.screens.ta.TAEMAFragment
 import com.kvladislav.cryptowise.screens.ta.TAMovingAverageFragment
 import com.kvladislav.cryptowise.screens.transaction.AddFragment
@@ -131,7 +132,7 @@ class CurrencyDetailsViewModel(
         val fragment = when (taType) {
             TAType.SIMPLE_MOVING_AVERAGE -> TAMovingAverageFragment()
             TAType.EXP_MOVING_AVERAGE -> TAEMAFragment()
-            TAType.OSCILLATOR -> TAEMAFragment()
+            TAType.OSCILLATOR -> StochasticFragment()
         }
 
         withActivity {
