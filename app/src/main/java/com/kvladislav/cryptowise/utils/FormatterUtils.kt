@@ -18,9 +18,9 @@ class FormatterUtils {
             suffixes[1_000_000_000_000_000_000L] = "E"
         }
 
-        fun format(value: Long): String {
-            if (value == Long.MIN_VALUE) return format(Long.MIN_VALUE + 1)
-            if (value < 0) return "-" + format(-value)
+        fun formatOld(value: Long): String {
+            if (value == Long.MIN_VALUE) return formatOld(Long.MIN_VALUE + 1)
+            if (value < 0) return "-" + formatOld(-value)
             if (value < 1000) return value.toString() //deal with easy case
             val e = suffixes.floorEntry(value)!!
             val divideBy = e.key
@@ -44,7 +44,7 @@ class FormatterUtils {
          * @param iteration in fact this is the class from the array c
          * @return a String representing the number n formatted in a cool looking way.
          */
-        fun coolFormat(n: Double, iteration: Int): String? {
+        fun coolFormat(n: Double, iteration: Int = 0): String {
             val d = n.toLong() / 100 / 10.0
             val isRound =
                 d * 10 % 10 == 0.0 //true if the decimal part is equal to 0 (then it's trimmed anyway)

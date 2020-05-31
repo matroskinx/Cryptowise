@@ -228,7 +228,9 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         leftAxis.valueFormatter = object : ValueFormatter() {
             override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                return FormatterUtils.format(value.toLong())
+                return if (value < 1000) {
+                    value.toDouble().formatDigits(2)
+                } else FormatterUtils.coolFormat(value.toDouble())
             }
         }
 
@@ -263,7 +265,9 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
 
         leftAxis.valueFormatter = object : ValueFormatter() {
             override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                return FormatterUtils.format(value.toLong())
+                return if (value < 1000) {
+                    value.toDouble().formatDigits(2)
+                } else FormatterUtils.coolFormat(value.toDouble())
             }
         }
 

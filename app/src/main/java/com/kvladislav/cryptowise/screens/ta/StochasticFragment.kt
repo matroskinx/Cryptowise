@@ -11,6 +11,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.dialogs.BottomSheetFragment
+import com.kvladislav.cryptowise.extensions.formatDigits
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.utils.FormatterUtils
@@ -95,7 +96,9 @@ class StochasticFragment : BaseFragment(R.layout.fragment_stochastic) {
 
         leftAxis.valueFormatter = object : ValueFormatter() {
             override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                return FormatterUtils.format(value.toLong())
+                return if (value < 1000) {
+                    value.toDouble().formatDigits(2)
+                } else FormatterUtils.coolFormat(value.toDouble())
             }
         }
     }
