@@ -19,13 +19,13 @@ import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.enums.TAType
 import com.kvladislav.cryptowise.enums.TimeInterval
+import com.kvladislav.cryptowise.extensions.formatDigits
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.utils.FormatterUtils
-import com.kvladislav.cryptowise.utils.TAUtils
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_currency_details.*
 import org.koin.androidx.viewmodel.ext.android.getSharedViewModel
@@ -116,6 +116,16 @@ class CurrencyDetailsFragment : BaseFragment(R.layout.fragment_currency_details)
         viewModel().connectionErrorLiveData.observe(viewLifecycleOwner) {
             it?.run {
                 showNoConnectionLayout()
+            }
+        }
+
+        viewModel().assetModel.observe(viewLifecycleOwner) { assetModel ->
+            assetModel.coinCapAssetItem.run {
+                price_tv.text = "${priceUsd?.formatDigits(2)}$"
+                volume_value_tv.text = FormatterUtils.coolFormat(volumeUsd24Hr!!, 0)
+                rank_value_tv.text = rank.toString()
+                market_cap_value_tv.text = FormatterUtils.coolFormat(marketCapUsd!!, 0)
+                supply_value_tv.text = FormatterUtils.coolFormat(supply!!, 0)
             }
         }
     }

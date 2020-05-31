@@ -11,6 +11,7 @@ import com.kvladislav.cryptowise.enums.TimeInterval
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CMCDataMinified
 import com.kvladislav.cryptowise.models.CandlePeriodicData
+import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.coin_cap.candles.CandleItem
 import com.kvladislav.cryptowise.repositories.CoinCapRepository
 import com.kvladislav.cryptowise.screens.AppViewModel
@@ -34,11 +35,13 @@ class CurrencyDetailsViewModel(
     private val coinCapRepository: CoinCapRepository by inject()
     val timeInterval: MutableLiveData<TimeInterval> = MutableLiveData(TimeInterval.DAY)
     val connectionErrorLiveData = SingleLiveEvent<String>()
+    val assetModel = MutableLiveData<CombinedAssetModel>()
 
     // data only for chart display
     val chartData: MutableLiveData<List<CandleItem>> = MutableLiveData()
 
     init {
+        fillCombinedAssetModel()
         requestCandles()
     }
 
@@ -78,6 +81,12 @@ class CurrencyDetailsViewModel(
         } catch (e: Exception) {
             Timber.e(e)
             onException(e)
+        }
+    }
+
+    private fun fillCombinedAssetModel() {
+        appViewModel.assetListings.value?.find { it.cmcId == cmcData.cmcId }?.run {
+            assetModel.postValue(this)
         }
     }
 

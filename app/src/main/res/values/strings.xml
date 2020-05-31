@@ -46,7 +46,12 @@
     <string name="login">Login</string>
     <string name="loading_general">Please wait while we are performing some tasks for you!</string>
     <string name="ema">EMA</string>
-    <string name="no_connection_error">Look like there is no internet connection</string>
+    <string name="no_connection_error">Looks like there is no internet connection!</string>
     <string name="no_assets_message">Hmm!\n You don\'t have any assets yet</string>
     <string name="unknown_error">Unknown error occurred!</string>
+    <string name="overview">Overview</string>
+    <string name="circulating_supply">Circulating supply</string>
+    <string name="rank">Rank</string>
+    <string name="market_cap">Market cap</string>
+    <string name="volume_usd">Volume (USD)</string>
 </resources>
