@@ -68,17 +68,14 @@ class CurrencyDetailsViewModel(
                 interval = "d1"
             ).data ?: mutableListOf()
             connectionErrorLiveData.postValue(null)
-            appViewModel.candlePeriodicData.postValue(
-                CandlePeriodicData(
-                    cmcData.cmcId,
-                    hourCandles,
-                    eightHourCandles,
-                    dayCandles
-                )
+            val candlePeriodicData = CandlePeriodicData(
+                cmcData.cmcId,
+                hourCandles,
+                eightHourCandles,
+                dayCandles
             )
-            timeInterval.value?.run {
-                postCorrespondingData(interval = this)
-            }
+            appViewModel.candlePeriodicData.postValue(candlePeriodicData)
+            timeInterval.value?.run { postCorrespondingData(this, candlePeriodicData) }
         } catch (e: Exception) {
             Timber.e(e)
             onException(e)
@@ -95,20 +92,24 @@ class CurrencyDetailsViewModel(
         connectionErrorLiveData.postValue(context.getString(handleException(e)))
     }
 
-    private fun postCorrespondingData(interval: TimeInterval) {
+    private fun postCorrespondingData(
+        interval: TimeInterval,
+        candlePeriodicData: CandlePeriodicData?
+    ) {
         val count = TimeInterval.getCandleCount(interval)
+        val data: CandlePeriodicData? = candlePeriodicData ?: appViewModel.candlePeriodicData.value
         when (interval) {
             TimeInterval.DAY -> chartData.postValue(
-                appViewModel.candlePeriodicData.value?.dataH1?.takeLast(count) ?: mutableListOf()
+                data?.dataH1?.takeLast(count) ?: mutableListOf()
             )
             TimeInterval.WEEK ->
                 chartData.postValue(
-                    appViewModel.candlePeriodicData.value?.dataH8?.takeLast(count)
+                    data?.dataH8?.takeLast(count)
                         ?: mutableListOf()
                 )
             TimeInterval.MONTH, TimeInterval.MONTH_3, TimeInterval.MONTH_6, TimeInterval.YEAR ->
                 chartData.postValue(
-                    appViewModel.candlePeriodicData.value?.dataD1?.takeLast(count)
+                    data?.dataD1?.takeLast(count)
                         ?: mutableListOf()
                 )
         }
@@ -125,7 +126,7 @@ class CurrencyDetailsViewModel(
 
     fun onIntervalChange(interval: TimeInterval) {
         timeInterval.postValue(interval)
-        postCorrespondingData(interval)
+        postCorrespondingData(interval, null)
     }
 
     fun onTATap(taType: TAType) {
