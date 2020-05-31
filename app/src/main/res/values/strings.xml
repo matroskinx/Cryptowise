@@ -58,7 +58,8 @@
     <string name="interval">Interval</string>
     <string name="type">Type</string>
     <string name="stochastic_header">Stochastic indicator</string>
-    <string name="stochastic_desc">Stochastic description</string>
+    <string name="stochastic_desc">A stochastic oscillator is a momentum indicator comparing a particular closing price of a security to a range of its prices over a certain period of time. The sensitivity of the oscillator to market movements is reducible by adjusting that time period or by taking a moving average of the result. It is used to generate overbought and oversold trading signals, utilizing a 0–100 bounded range of values.</string>
     <string name="ema_header">Exponential Moving Average</string>
-    <string name="ema_desc">Ema description</string>
+    <string name="ema_desc">The exponential moving average (EMA) is a technical chart indicator that tracks the price of an investment (like a stock or commodity) over time. The EMA is a type of weighted moving average (WMA) that gives more weighting or importance to recent price data. Like the simple moving average, the exponential moving average is used to see price trends over time.</string>
+    <string name="no_favourites_yet">You don\'t have any favourites yet!</string>
 </resources>

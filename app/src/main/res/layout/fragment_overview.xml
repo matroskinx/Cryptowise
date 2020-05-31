@@ -120,6 +120,33 @@
                 android:src="@drawable/ic_refresh" />
 
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/no_favs_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_box" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/no_favourites_yet"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
     </FrameLayout>
 
 </LinearLayout>

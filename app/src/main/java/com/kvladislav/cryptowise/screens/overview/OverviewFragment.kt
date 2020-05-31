@@ -81,8 +81,10 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         if (isShowing) {
             val filteredListings = listings.filter { favourites.contains(it.cmcId) }
             fillAdapterData(filteredListings)
+            setNoFavouriteAssetsView(filteredListings.isEmpty())
         } else {
             fillAdapterData(listings)
+            setNoFavouriteAssetsView(false)
         }
         changeFavouriteIcon(isShowing)
     }
@@ -142,6 +144,10 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         no_connection_layout.isVisible = true
         currency_rv.isVisible = false
         portfolio_panel.isVisible = false
+    }
+
+    private fun setNoFavouriteAssetsView(isVisible: Boolean) {
+        no_favs_layout.isVisible = isVisible
     }
 
     private fun setupHoldingsValue(coinCapId: String, assetValue: Double): String {
