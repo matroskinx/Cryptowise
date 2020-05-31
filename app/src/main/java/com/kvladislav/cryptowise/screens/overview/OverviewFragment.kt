@@ -43,10 +43,10 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
     override fun setupObservers() {
         appViewModel.assetListings.observe(viewLifecycleOwner) {
             appViewModel.tryUpdatePortfolio()
-            fillAdapterData(it)
+            fillAdapterDataDependingOnFavs(appViewModel.isShowingFavourites.value ?: false)
         }
         viewModel().favouriteList.observe(viewLifecycleOwner) {
-            adapter.notifyDataSetChanged()
+            fillAdapterDataDependingOnFavs(appViewModel.isShowingFavourites.value ?: false)
         }
         appViewModel.portfolioAssets.observe(viewLifecycleOwner) {
             appViewModel.tryUpdatePortfolio()
@@ -62,11 +62,36 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         }
 
         appViewModel.connectionErrorLiveData.observe(viewLifecycleOwner) {
-
             it?.run {
                 Timber.d("Trigger no connection LiveData")
                 setNoConnectionView()
             }
+        }
+
+        appViewModel.isShowingFavourites.observe(viewLifecycleOwner) { isShowing ->
+            fillAdapterDataDependingOnFavs(isShowing)
+        }
+    }
+
+    private fun fillAdapterDataDependingOnFavs(isShowing: Boolean) {
+        Timber.d("is showing favourites: $isShowing")
+        val favourites = viewModel().favouriteList.value ?: return
+        val listings = appViewModel.assetListings.value ?: return
+
+        if (isShowing) {
+            val filteredListings = listings.filter { favourites.contains(it.cmcId) }
+            fillAdapterData(filteredListings)
+        } else {
+            fillAdapterData(listings)
+        }
+        changeFavouriteIcon(isShowing)
+    }
+
+    private fun changeFavouriteIcon(showing: Boolean) {
+        if (showing) {
+            fav_btn.setImageResource(R.drawable.ic_favorite)
+        } else {
+            fav_btn.setImageResource(R.drawable.ic_favorite_border)
         }
     }
 
@@ -91,6 +116,10 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         refresh_button.setOnClickListener {
             setLoadingView()
             appViewModel.tryRefreshListings()
+        }
+
+        fav_btn.setOnClickListener {
+            appViewModel.onShowFavouritesTap()
         }
     }
 

@@ -44,13 +44,27 @@
             android:id="@+id/transactions_btn"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:tint="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fav_btn"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_arrow_forward" />
+
+        <ImageView
+            android:id="@+id/fav_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:tint="#FFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_arrow_forward" />
+            app:srcCompat="@drawable/ic_favorite_border" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -65,11 +79,11 @@
             android:layout_gravity="center" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
             android:id="@+id/currency_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
             android:visibility="invisible" />
 
         <LinearLayout

@@ -35,6 +35,7 @@ class AppViewModel(private val context: Context) : BaseViewModel(), KoinComponen
     val portfolioAssets = liveData(Dispatchers.IO) { emitSource(portfolioRepository.allAssets) }
     private val portfolioObserver = Observer<List<PortfolioItem>> { tryUpdatePortfolio() }
     val assetListings = MutableLiveData<List<CombinedAssetModel>>()
+    val isShowingFavourites = MutableLiveData(false)
 
     init {
         portfolioAssets.observeForever(portfolioObserver)
@@ -125,5 +126,9 @@ class AppViewModel(private val context: Context) : BaseViewModel(), KoinComponen
 
     fun tryRefreshListings() {
         loadAssetListings()
+    }
+
+    fun onShowFavouritesTap() {
+        isShowingFavourites.postValue(!(isShowingFavourites.value ?: false))
     }
 }
