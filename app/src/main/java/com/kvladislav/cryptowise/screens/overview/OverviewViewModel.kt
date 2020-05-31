@@ -1,13 +1,16 @@
 package com.kvladislav.cryptowise.screens.overview
 
 import android.content.Context
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.auth.FirebaseAuth
 import com.kvladislav.cryptowise.Preferences
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseViewModel
 import com.kvladislav.cryptowise.extensions.transaction
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.models.CurrencySetWrapper
+import com.kvladislav.cryptowise.screens.authorization.login.LoginFragment
 import com.kvladislav.cryptowise.screens.currency.CurrencyDetailsFragment
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -48,5 +51,16 @@ class OverviewViewModel(private val context: Context) : BaseViewModel(), KoinCom
             favouriteList.postValue(newIds)
         }
         Timber.d("Favourite item: ${item.cmcMapItem.id} ${item.cmcMapItem.symbol}")
+    }
+
+    fun logoutAndLeave() {
+        FirebaseAuth.getInstance().signOut()
+        preferences.clearFavouriteCurrencies()
+        withActivity {
+            it.supportFragmentManager.run {
+                this.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                this.transaction { this.replace(R.id.fragment_container, LoginFragment()) }
+            }
+        }
     }
 }

@@ -1,10 +1,13 @@
 package com.kvladislav.cryptowise.screens.overview
 
 import android.os.Bundle
-import android.view.View
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
@@ -32,6 +35,7 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         appViewModel = getSharedViewModel()
     }
 
@@ -221,5 +225,27 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
         )
         currency_rv.layoutManager = LinearLayoutManager(context)
         currency_rv.adapter = adapter
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.exit -> showLogoutDialog()
+        }
+        return true
+    }
+
+    private fun showLogoutDialog() {
+        context?.run {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Are you sure you want to log out?")
+                .setPositiveButton("Yes") { dialog, which ->
+                    Timber.d("Yes $dialog $which")
+                    viewModel().logoutAndLeave()
+                }.setNegativeButton("No") { _, _ -> }.show()
+        }
     }
 }

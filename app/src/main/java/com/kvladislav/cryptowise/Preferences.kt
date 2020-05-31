@@ -11,7 +11,7 @@ class Preferences(private val context: Context) {
         context.getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE)
 
 
-    fun setStringPrefs(key: String, value: String) {
+    fun setStringPrefs(key: String, value: String?) {
         sharedPreferences.edit().putString(key, value).apply()
     }
 
@@ -21,6 +21,10 @@ class Preferences(private val context: Context) {
     fun setFavouriteCurrencies(ids: CurrencySetWrapper) {
         val jsonString = Gson().toJson(ids)
         setStringPrefs(FAVOURITE_CURRENCIES_KEY, jsonString)
+    }
+
+    fun clearFavouriteCurrencies() {
+        setStringPrefs(FAVOURITE_CURRENCIES_KEY, null)
     }
 
     fun getFavouriteCurrencies(): CurrencySetWrapper {
