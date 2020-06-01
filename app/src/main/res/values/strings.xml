@@ -64,4 +64,6 @@
     <string name="no_favourites_yet">You don\'t have any favourites yet!</string>
     <string name="exit">Exit</string>
     <string name="transaction_list_empty">Transaction list is empty now!</string>
+    <string name="minus">Minus</string>
+    <string name="debt">Debt</string>
 </resources>

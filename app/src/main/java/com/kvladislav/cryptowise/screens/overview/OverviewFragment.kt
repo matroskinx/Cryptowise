@@ -12,10 +12,7 @@ import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
-import com.kvladislav.cryptowise.extensions.formatDigits
-import com.kvladislav.cryptowise.extensions.formatWithPercentSigned
-import com.kvladislav.cryptowise.extensions.observe
-import com.kvladislav.cryptowise.extensions.transaction
+import com.kvladislav.cryptowise.extensions.*
 import com.kvladislav.cryptowise.models.CombinedAssetModel
 import com.kvladislav.cryptowise.screens.AppViewModel
 import com.kvladislav.cryptowise.screens.portfolio.PortfolioFragment
@@ -165,7 +162,11 @@ class OverviewFragment : BaseFragment(R.layout.fragment_overview) {
             it.coinCapId == coinCapId
         } ?: return dashString
 
-        val percent = (portfolioAsset.assetAmount * assetValue) / portfolio.value * 100
+        if (portfolioAsset.assetAmount < 0) {
+            return getString(R.string.debt);
+        }
+
+        val percent = (portfolioAsset.assetAmount * assetValue) / portfolio.calculatePositiveSum() * 100
         return "${percent.formatDigits(4)}%"
     }
 

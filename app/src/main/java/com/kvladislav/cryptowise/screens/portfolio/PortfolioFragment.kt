@@ -91,8 +91,10 @@ class PortfolioFragment : BaseFragment(R.layout.fragment_portfolio) {
         pie_chart.centerText = "\$${portfolio.value.formatDigits(4)}"
         val entries = mutableListOf<PieEntry>()
         for (asset in portfolio.assets) {
-            val assetPrice = asset.itemPrice * asset.portfolioItem.assetAmount / portfolio.value
-            entries.add(PieEntry(assetPrice.toFloat()))
+            if (asset.holdValue > 0) {
+                val assetPrice = asset.holdValue / portfolio.value
+                entries.add(PieEntry(assetPrice.toFloat()))
+            }
         }
 
         val pieDataSet = PieDataSet(entries, "")
@@ -139,8 +141,15 @@ class PortfolioFragment : BaseFragment(R.layout.fragment_portfolio) {
 
     private fun getAssetPercent(holdValue: Double): Double {
         return appViewModel.fullPortfolio.value?.run {
-            holdValue / this.value * 100
+            holdValue / this.calculatePositiveSum() * 100
         } ?: 0.0
+    }
+
+    private fun getPortfolioPercentFromHoldValue(holdValue: Double): String {
+        if (holdValue < 0) {
+            return "-"
+        }
+        return getAssetPercent(holdValue).formatWithPercent(4)
     }
 
     private fun createRecyclerViewAdapter() {
@@ -151,7 +160,7 @@ class PortfolioFragment : BaseFragment(R.layout.fragment_portfolio) {
 
                     symbol_tv.text = item.portfolioItem.symbol
                     quantity_tv.text = item.portfolioItem.assetAmount.formatDigits(4)
-                    portfolio_percent_tv.text = getAssetPercent(item.holdValue).formatWithPercent(4)
+                    portfolio_percent_tv.text = getPortfolioPercentFromHoldValue(item.holdValue)
                     hold_value_tv.text =
                         "\$${(item.holdValue).formatDigits(4)}"
 

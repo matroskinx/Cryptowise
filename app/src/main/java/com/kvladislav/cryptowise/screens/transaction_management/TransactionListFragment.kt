@@ -8,6 +8,7 @@ import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateLayoutContainer
 import com.kvladislav.cryptowise.R
 import com.kvladislav.cryptowise.base.BaseFragment
 import com.kvladislav.cryptowise.enums.TransactionType
+import com.kvladislav.cryptowise.extensions.formatDigits
 import com.kvladislav.cryptowise.extensions.observe
 import com.kvladislav.cryptowise.models.transactions.BuySellTransaction
 import com.kvladislav.cryptowise.screens.AppViewModel
@@ -59,7 +60,8 @@ class TransactionListFragment : BaseFragment(R.layout.fragment_transaction_list)
                         TransactionType.SELL -> "Received"
                         TransactionType.TRANSFER -> "Transferred"
                     }
-                    val operationText = "$operation ${item.usdPerCoin * item.coinQuantity}$"
+                    val operationText =
+                        "$operation ${(item.usdPerCoin * item.coinQuantity).formatDigits(2)}$"
                     usd_tv.text = operationText
                     Picasso.get()
                         .load("https://s2.coinmarketcap.com/static/img/coins/128x128/${item.cmcId}.png")
